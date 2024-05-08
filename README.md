@@ -1,2 +1,2 @@
 # nvim
-Personal, for sync.
+Only for sync.
