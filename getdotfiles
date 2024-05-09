@@ -1,0 +1,11 @@
+username="udunuss"
+branch="main"
+dotfiles="dotfiles"
+fromto=("nvim/init.lua;$HOME/.config/nvim")
+for f in "${fromto[@]}"
+do
+  from=$(echo "$f" | cut -d ";" -f 1)
+  to=$(echo "$f" | cut -d ";" -f 2)
+  rawlink="https://raw.githubusercontent.com/$username/$dotfiles/$branch/$from"
+  (mkdir -p $to && cd $to && curl -O $rawlink) >> /dev/null 2>&1
+done
