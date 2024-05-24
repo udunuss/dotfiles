@@ -149,6 +149,13 @@ require("lazy").setup({
 	--
 	--  This is equivalent to:
 	--    require('Comment').setup({})
+	{
+		"dstein64/nvim-scrollview",
+		opts = {
+			signs_on_startup = { "all" },
+			diagnostics_severities = { vim.diagnostic.severity.ERROR },
+		},
+	},
 	{ "lambdalisue/vim-suda" },
 	{ "nvim-lua/popup.nvim" },
 	{ "nvim-telescope/telescope-media-files.nvim" },
