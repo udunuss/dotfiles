@@ -138,6 +138,7 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 require("lazy").setup({
+
 	-- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
 	"tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
 
@@ -159,11 +160,17 @@ require("lazy").setup({
 	{ "lambdalisue/vim-suda" },
 	{ "nvim-lua/popup.nvim" },
 	{ "nvim-telescope/telescope-media-files.nvim" },
+	{
+		"nvim-telescope/telescope-file-browser.nvim",
+		dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
+	},
 	{ "xiyaowong/transparent.nvim" },
 	{ "ThePrimeagen/vim-be-good" },
 	-- "gc" to comment visual regions/lines
 	{ "numToStr/Comment.nvim", opts = {} },
-
+	{ "voldikss/vim-floaterm" },
+	-- lazy.nvim
+	{ "mikavilpas/yazi.nvim", opts = {} },
 	-- Here is a more advanced example where we pass configuration
 	-- options to `gitsigns.nvim`. This is equivalent to the following Lua:
 	--    require('gitsigns').setup({ ... })
@@ -212,6 +219,8 @@ require("lazy").setup({
 				["<leader>w"] = { name = "[W]orkspace", _ = "which_key_ignore" },
 				["<leader>t"] = { name = "[T]oggle", _ = "which_key_ignore" },
 				["<leader>h"] = { name = "Git [H]unk", _ = "which_key_ignore" },
+				["<leader>z"] = { name = "[Z]ellij", _ = "which_key_ignore" },
+				["<leader>zp"] = { name = "[P]ane", _ = "which_key_ignore" },
 			})
 			-- visual mode
 			require("which-key").register({
@@ -307,7 +316,9 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 			vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
 			vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
-
+			vim.keymap.set("n", "<leader>-", function()
+				require("yazi").yazi()
+			end)
 			-- Slightly advanced example of overriding default behavior and theme
 			vim.keymap.set("n", "<leader>/", function()
 				-- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -330,6 +341,15 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sn", function()
 				builtin.find_files({ cwd = vim.fn.stdpath("config") })
 			end, { desc = "[S]earch [N]eovim files" })
+			vim.keymap.set("n", "<leader>fb", function()
+				require("telescope").extensions.file_browser.file_browser()
+			end)
+			vim.keymap.set("n", "<leader>tm", ":FloatermToggle<CR>")
+			vim.keymap.set("n", "<leader>zph", function()
+				local cmd =
+					string.format('zellij run --close-on-exit -- sh -c "cd %s && $SHELL"', vim.fn.expand("%:p:h"))
+				vim.fn.system(cmd)
+			end, { desc = "Open Pane Here", silent = true, noremap = true })
 		end,
 	},
 
