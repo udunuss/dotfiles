@@ -2,8 +2,8 @@
 username="udunuss"
 branch="main"
 repo="dotfiles"
-fromto=("nvim/init.lua;$HOME/.config/nvim")
-for f in "${fromto[@]}"
+from_to=("nvim/init.lua;$HOME/.config/nvim")
+for f in "${from_to[@]}"
 do
   from=$(echo "$f" | cut -d ";" -f 1)
   to=$(echo "$f" | cut -d ";" -f 2)
