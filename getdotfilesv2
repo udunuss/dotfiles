@@ -3,7 +3,7 @@
 username="udunuss"
 branch="main"
 repo="dotfiles"
-from_to=("nvim;$HOME/.config")
+from_to=(".config;$HOME")
 
 download_folder() {
     local from=$1
