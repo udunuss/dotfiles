@@ -16,7 +16,7 @@ download_folder() {
     local from=$1
     local to=$2
     local api_url="https://api.github.com/repos/$username/$repo/contents/$from?ref=$branch"
-    local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" "$api_url")
+    local response=$(wget -qO- --header="Accept: application/vnd.github.v3+json" "$api_url")
 
     # Process each item in the response
     while read -r item; do
@@ -33,20 +33,20 @@ download_folder() {
             
             if [ -f "$local_path" ]; then
                 local_date=$(stat -c %Y "$local_path")
-                commit_info=$(curl -sS -H "Time-Zone: UTC" -L "https://api.github.com/repos/$username/$repo/commits?path=$path")
+                commit_info=$(wget -qO- --header="Time-Zone: UTC" "https://api.github.com/repos/$username/$repo/commits?path=$path")
                 commit_date=$(parse_json "$commit_info" "date")
                 local_date=$(date -d "@$local_date" +%s)
                 commit_date=$(date -d "$commit_date" +%s)
                 
                 if [[ "$commit_date" -gt "$local_date" ]]; then
                     echo "Updating $local_path"
-                    curl -sS -o "$local_path" "$download_url"
+                    wget -qO "$local_path" "$download_url"
                 else
                     echo "No update needed for $local_path"
                 fi
             else
                 echo "Downloading $local_path"
-                curl -sS -o "$local_path" "$download_url"
+                wget -qO "$local_path" "$download_url"
             fi
         elif [ "$type" == "dir" ]; then
             download_folder "$path" "$to"
