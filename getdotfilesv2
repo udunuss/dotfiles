@@ -5,20 +5,27 @@ branch="main"
 repo="dotfiles"
 from_to=("nvim;$HOME/.config")
 
+# Function to parse JSON and extract values
+parse_json() {
+    local json="$1"
+    local key="$2"
+    echo "$json" | sed -n "s/.*\"$key\":\s*\"\([^\"]*\)\".*/\1/p"
+}
+
 download_folder() {
     local from=$1
     local to=$2
     local api_url="https://api.github.com/repos/$username/$repo/contents/$from?ref=$branch"
-    local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" $api_url)
+    local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" "$api_url")
 
-    echo "$response" | jq -r '.[] | @base64' | while read item; do
-        decoded=$(echo $item | base64 --decode)
-        name=$(echo $decoded | jq -r '.name')
-        path=$(echo $decoded | jq -r '.path')
-        type=$(echo $decoded | jq -r '.type')
+    # Process each item in the response
+    while read -r item; do
+        name=$(parse_json "$item" "name")
+        path=$(parse_json "$item" "path")
+        type=$(parse_json "$item" "type")
         
         if [ "$type" == "file" ]; then
-            download_url=$(echo $decoded | jq -r '.download_url')
+            download_url=$(parse_json "$item" "download_url")
             local_path="$to/$path"
             local_dir=$(dirname "$local_path")
             
@@ -26,7 +33,8 @@ download_folder() {
             
             if [ -f "$local_path" ]; then
                 local_date=$(stat -c %Y "$local_path")
-                commit_date=$(curl -sS -H "Time-Zone: UTC" -L "https://api.github.com/repos/$username/$repo/commits?path=$path" | jq -r '.[0].commit.author.date')
+                commit_info=$(curl -sS -H "Time-Zone: UTC" -L "https://api.github.com/repos/$username/$repo/commits?path=$path")
+                commit_date=$(parse_json "$commit_info" "date")
                 local_date=$(date -d "@$local_date" +%s)
                 commit_date=$(date -d "$commit_date" +%s)
                 
@@ -43,7 +51,7 @@ download_folder() {
         elif [ "$type" == "dir" ]; then
             download_folder "$path" "$to"
         fi
-    done
+    done <<< "$(echo "$response" | grep -o '{[^}]*}')"
 }
 
 for f in "${from_to[@]}"; do
