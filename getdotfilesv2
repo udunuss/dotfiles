@@ -1,0 +1,53 @@
+#!/bin/bash
+
+username="udunuss"
+branch="main"
+repo="dotfiles"
+from_to=("nvim;$HOME/.config")
+
+download_folder() {
+    local from=$1
+    local to=$2
+    local api_url="https://api.github.com/repos/$username/$repo/contents/$from?ref=$branch"
+    local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" $api_url)
+
+    echo "$response" | jq -r '.[] | @base64' | while read item; do
+        decoded=$(echo $item | base64 --decode)
+        name=$(echo $decoded | jq -r '.name')
+        path=$(echo $decoded | jq -r '.path')
+        type=$(echo $decoded | jq -r '.type')
+        
+        if [ "$type" == "file" ]; then
+            download_url=$(echo $decoded | jq -r '.download_url')
+            local_path="$to/$path"
+            local_dir=$(dirname "$local_path")
+            
+            mkdir -p "$local_dir"
+            
+            if [ -f "$local_path" ]; then
+                local_date=$(stat -c %Y "$local_path")
+                commit_date=$(curl -sS -H "Time-Zone: UTC" -L "https://api.github.com/repos/$username/$repo/commits?path=$path" | jq -r '.[0].commit.author.date')
+                local_date=$(date -d "@$local_date" +%s)
+                commit_date=$(date -d "$commit_date" +%s)
+                
+                if [[ "$commit_date" -gt "$local_date" ]]; then
+                    echo "Updating $local_path"
+                    curl -sS -o "$local_path" "$download_url"
+                else
+                    echo "No update needed for $local_path"
+                fi
+            else
+                echo "Downloading $local_path"
+                curl -sS -o "$local_path" "$download_url"
+            fi
+        elif [ "$type" == "dir" ]; then
+            download_folder "$path" "$to"
+        fi
+    done
+}
+
+for f in "${from_to[@]}"; do
+    from=$(echo "$f" | cut -d ";" -f 1)
+    to=$(echo "$f" | cut -d ";" -f 2)
+    download_folder "$from" "$to"
+done
