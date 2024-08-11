@@ -1,6 +1,6 @@
 for sync.
 
-### Req.
+### Req. for script
 - jq
 -  curl
 
