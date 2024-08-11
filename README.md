@@ -6,5 +6,5 @@ for sync.
 
 ### Usage
 ```
-wget -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/getdotfilesv2 | /bin/bash
+wget -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/getdotfiles | /bin/bash
 ```
