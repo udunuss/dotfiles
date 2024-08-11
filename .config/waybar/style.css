@@ -1,0 +1,83 @@
+* {
+  border: none;
+  font-family: 'Fira Code', 'Symbols Nerd Font Mono';
+  font-size: 16px;
+  font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
+  min-height: 18px;
+}
+
+window#waybar {
+  background: transparent;
+}
+
+#custom-arch, #workspaces {
+  border-radius: 10px;
+  background-color: #11111b;
+  color: #b4befe;
+  margin-top: 5px;
+  margin-right: 5px;
+  padding-top: 1px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+#custom-arch {
+  font-size: 20px;
+  margin-left: 15px;
+  color: #b4befe;
+}
+
+#workspaces button {
+  background: #11111b;
+  color: #b4befe;
+}
+
+#custom-weather, #tray, #clock, #backlight, #pulseaudio, #bluetooth, #network, #battery{
+  border-radius: 10px;
+  background-color: #11111b;
+  color: #b4befe;
+  margin-top: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-right: 15px;
+}
+
+#backlight, #bluetooth {
+  padding-right: 7px;
+  margin-right: 0
+}
+
+#pulseaudio, #network {
+  padding-left: 6px;
+}
+
+#clock {
+  margin-right: 0;
+}
+#custom-weather.severe {
+    color: #eb937d;
+}
+
+#custom-weather.sunnyDay {
+    color: #c2ca76;
+}
+
+#custom-weather.clearNight {
+    color: #2b2b2a;
+}
+
+#custom-weather.cloudyFoggyDay, #custom-weather.cloudyFoggyNight {
+    color: #c2ddda;
+}
+
+#custom-weather.rainyDay, #custom-weather.rainyNight {
+    color: #5aaca5;
+}
+
+#custom-weather.showyIcyDay, #custom-weather.snowyIcyNight {
+    color: #d6e7e5;
+}
+
+#custom-weather.default {
+    color: #dbd9d8;
+}
