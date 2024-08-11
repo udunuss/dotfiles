@@ -9,16 +9,21 @@ download_folder() {
     local from=$1
     local to=$2
     local api_url="https://api.github.com/repos/$username/$repo/contents/$from?ref=$branch"
-    local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" $api_url)
+    local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" "$api_url")
 
-    echo "$response" | jq -r '.[] | @base64' | while read item; do
-        decoded=$(echo $item | base64 --decode)
-        name=$(echo $decoded | jq -r '.name')
-        path=$(echo $decoded | jq -r '.path')
-        type=$(echo $decoded | jq -r '.type')
+    if ! echo "$response" | jq -e . >/dev/null 2>&1; then
+        echo "Error: Invalid JSON response from GitHub API for $from"
+        return 1
+    fi
+
+    echo "$response" | jq -r '.[] | @base64' | while read -r item; do
+        decoded=$(echo "$item" | base64 --decode)
+        name=$(echo "$decoded" | jq -r '.name')
+        path=$(echo "$decoded" | jq -r '.path')
+        type=$(echo "$decoded" | jq -r '.type')
         
         if [ "$type" == "file" ]; then
-            download_url=$(echo $decoded | jq -r '.download_url')
+            download_url=$(echo "$decoded" | jq -r '.download_url')
             local_path="$to/$path"
             local_dir=$(dirname "$local_path")
             
@@ -26,19 +31,30 @@ download_folder() {
             
             if [ -f "$local_path" ]; then
                 local_date=$(stat -c %Y "$local_path")
-                commit_date=$(curl -sS -H "Time-Zone: UTC" -L "https://api.github.com/repos/$username/$repo/commits?path=$path" | jq -r '.[0].commit.author.date')
+                commit_info=$(curl -sS -H "Time-Zone: UTC" -L "https://api.github.com/repos/$username/$repo/commits?path=$path")
+                
+                if ! echo "$commit_info" | jq -e '.[0]' >/dev/null 2>&1; then
+                    echo "Error: Unable to fetch commit information for $path"
+                    continue
+                fi
+
+                commit_date=$(echo "$commit_info" | jq -r '.[0].commit.author.date')
                 local_date=$(date -d "@$local_date" +%s)
                 commit_date=$(date -d "$commit_date" +%s)
                 
                 if [[ "$commit_date" -gt "$local_date" ]]; then
                     echo "Updating $local_path"
-                    curl -sS -o "$local_path" "$download_url"
+                    if ! curl -sS -o "$local_path" "$download_url"; then
+                        echo "Error: Failed to download $download_url"
+                    fi
                 else
                     echo "No update needed for $local_path"
                 fi
             else
                 echo "Downloading $local_path"
-                curl -sS -o "$local_path" "$download_url"
+                if ! curl -sS -o "$local_path" "$download_url"; then
+                    echo "Error: Failed to download $download_url"
+                fi
             fi
         elif [ "$type" == "dir" ]; then
             download_folder "$path" "$to"
