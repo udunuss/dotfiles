@@ -23,7 +23,7 @@ fi
 
 debug_output() {
     echo "DEBUG: $1" >&2
-    echo "$2" | jq '.' >&2 || echo "Failed to parse JSON" >&2
+    echo "$2" | jq '.' >&2 || echo "Failed to parse JSON: $2" >&2
 }
 
 handle_rate_limit() {
