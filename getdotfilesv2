@@ -28,12 +28,18 @@ debug_output() {
 
 handle_rate_limit() {
     local response="$1"
-    if echo "$response" | jq -e '.message | contains("API rate limit exceeded")' >/dev/null; then
+    if echo "$response" | jq -e 'if type == "object" then .message else false end' | grep -q "API rate limit exceeded"; then
         echo "Error: GitHub API rate limit exceeded." >&2
         echo "Please set the GITHUB_TOKEN environment variable with a personal access token." >&2
         echo "Create one at https://github.com/settings/tokens" >&2
         exit 1
     fi
+}
+
+parse_json() {
+    local json="$1"
+    local query="$2"
+    echo "$json" | jq -r "$query" 2>/dev/null || echo ""
 }
 
 download_folder() {
@@ -47,74 +53,82 @@ download_folder() {
 
     handle_rate_limit "$response"
 
-    if ! echo "$response" | jq -e '.message' >/dev/null 2>&1; then
-        echo "$response" | jq -r '.[] | @base64' | while read -r item; do
-            decoded=$(echo "$item" | base64 --decode)
-            debug_output "Decoded item:" "$decoded"
-
-            name=$(echo "$decoded" | jq -r '.name // empty')
-            path=$(echo "$decoded" | jq -r '.path // empty')
-            type=$(echo "$decoded" | jq -r '.type // empty')
-            
-            if [ -z "$name" ] || [ -z "$path" ] || [ -z "$type" ]; then
-                echo "Error: Missing required fields in item" >&2
-                continue
-            fi
-
-            if [ "$type" == "file" ]; then
-                download_url=$(echo "$decoded" | jq -r '.download_url // empty')
-                if [ -z "$download_url" ]; then
-                    echo "Error: Missing download_url for $path" >&2
-                    continue
-                fi
-
-                local_path="$to/$path"
-                local_dir=$(dirname "$local_path")
-                
-                mkdir -p "$local_dir"
-                
-                if [ -f "$local_path" ]; then
-                    local_date=$(stat -c %Y "$local_path")
-                    commit_info=$(curl -sS -H "Time-Zone: UTC" -H "$auth_header" -L "https://api.github.com/repos/$username/$repo/commits?path=$path")
-                    debug_output "Commit info for $path:" "$commit_info"
-                    
-                    handle_rate_limit "$commit_info"
-
-                    if ! echo "$commit_info" | jq -e '.[0]' >/dev/null 2>&1; then
-                        echo "Error: Unable to fetch commit information for $path" >&2
-                        continue
-                    fi
-
-                    commit_date=$(echo "$commit_info" | jq -r '.[0].commit.author.date // empty')
-                    if [ -z "$commit_date" ]; then
-                        echo "Error: Unable to extract commit date for $path" >&2
-                        continue
-                    fi
-
-                    local_date=$(date -d "@$local_date" +%s)
-                    commit_date=$(date -d "$commit_date" +%s)
-                    
-                    if [[ "$commit_date" -gt "$local_date" ]]; then
-                        echo "Updating $local_path"
-                        if ! curl -sS -H "$auth_header" -o "$local_path" "$download_url"; then
-                            echo "Error: Failed to download $download_url" >&2
-                        fi
-                    else
-                        echo "No update needed for $local_path"
-                    fi
-                else
-                    echo "Downloading $local_path"
-                    if ! curl -sS -H "$auth_header" -o "$local_path" "$download_url"; then
-                        echo "Error: Failed to download $download_url" >&2
-                    fi
-                fi
-            elif [ "$type" == "dir" ]; then
-                download_folder "$path" "$to"
-            fi
+    if [ "$(parse_json "$response" 'if type == "array" then "array" elif type == "object" and has("message") then "error" else "unknown" end')" = "array" ]; then
+        echo "$response" | jq -c '.[]' | while read -r item; do
+            process_item "$item" "$to"
         done
+    elif [ "$(parse_json "$response" 'if type == "object" and has("message") then "error" else "unknown" end')" = "error" ]; then
+        echo "Error: $(parse_json "$response" '.message')" >&2
     else
-        echo "Error: Failed to fetch content for $from" >&2
-        echo "Response: $(echo "$response" | jq -r '.message')" >&2
+        echo "Error: Unexpected response format for $from" >&2
+    fi
+}
+
+process_item() {
+    local item="$1"
+    local to="$2"
+    
+    local name=$(parse_json "$item" '.name')
+    local path=$(parse_json "$item" '.path')
+    local type=$(parse_json "$item" '.type')
+    local download_url=$(parse_json "$item" '.download_url')
+
+    if [ -z "$name" ] || [ -z "$path" ] || [ -z "$type" ]; then
+        echo "Error: Missing required fields in item" >&2
+        return
+    fi
+
+    if [ "$type" = "file" ]; then
+        if [ -z "$download_url" ]; then
+            echo "Error: Missing download_url for $path" >&2
+            return
+        fi
+
+        local_path="$to/$path"
+        local_dir=$(dirname "$local_path")
+        
+        mkdir -p "$local_dir"
+        
+        if [ -f "$local_path" ]; then
+            update_file "$local_path" "$download_url" "$path"
+        else
+            echo "Downloading $local_path"
+            if ! curl -sS -H "$auth_header" -o "$local_path" "$download_url"; then
+                echo "Error: Failed to download $download_url" >&2
+            fi
+        fi
+    elif [ "$type" = "dir" ]; then
+        download_folder "$path" "$to"
+    fi
+}
+
+update_file() {
+    local local_path="$1"
+    local download_url="$2"
+    local path="$3"
+    
+    local_date=$(stat -c %Y "$local_path")
+    commit_info=$(curl -sS -H "Time-Zone: UTC" -H "$auth_header" -L "https://api.github.com/repos/$username/$repo/commits?path=$path")
+    debug_output "Commit info for $path:" "$commit_info"
+    
+    handle_rate_limit "$commit_info"
+
+    commit_date=$(parse_json "$commit_info" '.[0].commit.author.date')
+    if [ -z "$commit_date" ]; then
+        echo "Error: Unable to extract commit date for $path" >&2
+        return
+    fi
+
+    local_date=$(date -d "@$local_date" +%s)
+    commit_date=$(date -d "$commit_date" +%s)
+    
+    if [[ "$commit_date" -gt "$local_date" ]]; then
+        echo "Updating $local_path"
+        if ! curl -sS -H "$auth_header" -o "$local_path" "$download_url"; then
+            echo "Error: Failed to download $download_url" >&2
+        fi
+    else
+        echo "No update needed for $local_path"
     fi
 }
 
