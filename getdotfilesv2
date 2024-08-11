@@ -3,77 +3,150 @@
 set -e
 set -o pipefail
 
-USERNAME="udunuss"
-BRANCH="main"
-REPO="dotfiles"
-FROM_TO=(".config;$HOME")
-GITHUB_TOKEN=${GITHUB_TOKEN:-""}
-AUTH_HEADER=${GITHUB_TOKEN:+"Authorization: token $GITHUB_TOKEN"}
+username="udunuss"
+branch="main"
+repo="dotfiles"
+from_to=(".config;$HOME")
+
+# GitHub Personal Access Token
+# Create one at https://github.com/settings/tokens
+# and set it as an environment variable:
+#export GITHUB_PAT=
+
+GITHUB_PAT=${GITHUB_PAT:-}
+# Debug flag (set to true to enable debug output)
 DEBUG=${DEBUG:-false}
 
-debug() {
+
+debug_output() {
     if [ "$DEBUG" = true ]; then
         echo "DEBUG: $1" >&2
+        echo "$2" | jq '.' >&2 || echo "Failed to parse JSON" >&2
     fi
 }
 
-parse_json() {
-    local json="$1"
-    local query="$2"
-    echo "$json" | jq -r "$query" 2>/dev/null || echo ""
+github_api_request() {
+    local url=$1
+    local max_retries=5
+    local wait_time=5
+
+    for ((i=0; i<max_retries; i++)); do
+        local response
+        if [ -n "$GITHUB_PAT" ]; then
+            response=$(curl -sS -H "Authorization: token $GITHUB_PAT" -H "Accept: application/vnd.github.v3+json" "$url")
+        else
+            response=$(curl -sS -H "Accept: application/vnd.github.v3+json" "$url")
+        fi
+
+        if echo "$response" | jq -e 'if type=="object" then .message | contains("API rate limit exceeded") else false end' > /dev/null 2>&1; then
+            echo "Rate limit exceeded. Waiting $wait_time seconds before retry..." >&2
+            sleep $wait_time
+            wait_time=$((wait_time * 2))
+        else
+            echo "$response"
+            return 0
+        fi
+    done
+
+    echo "Error: Maximum retries reached. Unable to complete the request." >&2
+    return 1
 }
 
-download_item() {
-    local path=$1
+download_folder() {
+    local from=$1
     local to=$2
-    local api_url="https://api.github.com/repos/$USERNAME/$REPO/contents/$path?ref=$BRANCH"
-    debug "Fetching: $api_url"
-    local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" -H "$AUTH_HEADER" "$api_url")
-    debug "Response: $response"
+    local api_url="https://api.github.com/repos/$username/$repo/contents/$from?ref=$branch"
+    local response
 
-    if parse_json "$response" '.message | select(. | contains("API rate limit exceeded"))' | grep -q .; then
-        echo "Error: GitHub API rate limit exceeded. Set GITHUB_TOKEN env variable." >&2
-        exit 1
+    response=$(github_api_request "$api_url")
+    debug_output "API Response for $from:" "$response"
+
+    if ! echo "$response" | jq -e 'if type=="array" then true else false end' > /dev/null 2>&1; then
+        echo "Error: Unexpected JSON response from GitHub API for $from" >&2
+        return 1
     fi
 
-    if parse_json "$response" 'if type == "array" then . else [.] end' | jq -c '.[]' | grep -q .; then
-        echo "$response" | jq -c 'if type == "array" then .[] else . end' | while read -r item; do
-            local item_path=$(parse_json "$item" '.path')
-            local item_type=$(parse_json "$item" '.type')
-            local download_url=$(parse_json "$item" '.download_url')
-            local local_path="$to/$item_path"
+    echo "$response" | jq -r '.[] | @base64' | while read -r item; do
+        decoded=$(echo "$item" | base64 --decode)
+        debug_output "Decoded item:" "$decoded"
 
-            debug "Processing: $item_path ($item_type)"
+        name=$(echo "$decoded" | jq -r '.name // empty')
+        path=$(echo "$decoded" | jq -r '.path // empty')
+        type=$(echo "$decoded" | jq -r '.type // empty')
+        
+        if [ -z "$name" ] || [ -z "$path" ] || [ -z "$type" ]; then
+            echo "Error: Missing required fields in item" >&2
+            continue
+        fi
 
-            if [ "$item_type" = "dir" ]; then
-                mkdir -p "$local_path"
-                download_item "$item_path" "$to"
-            elif [ "$item_type" = "file" ]; then
-                if [ -f "$local_path" ]; then
-                    local_date=$(stat -c %Y "$local_path")
-                    commit_info=$(curl -sS -H "$AUTH_HEADER" "https://api.github.com/repos/$USERNAME/$REPO/commits?path=$item_path&page=1&per_page=1")
-                    commit_date=$(parse_json "$commit_info" '.[0].commit.author.date')
-                    
-                    if [ -n "$commit_date" ] && [ $(date -d "$commit_date" +%s) -gt $(date -d "@$local_date" +%s) ]; then
-                        echo "Updating $local_path"
-                        curl -sS -o "$local_path" "$download_url"
-                    else
-                        debug "No update needed for $local_path"
+        if [ "$type" == "file" ]; then
+            download_url=$(echo "$decoded" | jq -r '.download_url // empty')
+            if [ -z "$download_url" ]; then
+                echo "Error: Missing download_url for $path" >&2
+                continue
+            fi
+
+            local_path="$to/$path"
+            local_dir=$(dirname "$local_path")
+            
+            mkdir -p "$local_dir"
+            
+            if [ -f "$local_path" ]; then
+                local_date=$(stat -c %Y "$local_path")
+                commit_info=$(github_api_request "https://api.github.com/repos/$username/$repo/commits?path=$path")
+                debug_output "Commit info for $path:" "$commit_info"
+                
+                if ! echo "$commit_info" | jq -e 'if type=="array" then .[0] else false end' > /dev/null 2>&1; then
+                    echo "Error: Unable to fetch commit information for $path" >&2
+                    continue
+                fi
+
+                commit_date=$(echo "$commit_info" | jq -r '.[0].commit.author.date // empty')
+                if [ -z "$commit_date" ]; then
+                    echo "Error: Unable to extract commit date for $path" >&2
+                    continue
+                fi
+
+                local_date=$(date -d "@$local_date" +%s)
+                commit_date=$(date -d "$commit_date" +%s)
+                
+                if [[ "$commit_date" -gt "$local_date" ]]; then
+                    echo "Updating $local_path"
+                    if ! curl -sS -o "$local_path" "$download_url"; then
+                        echo "Error: Failed to download $download_url" >&2
                     fi
                 else
-                    echo "Downloading $local_path"
-                    curl -sS -o "$local_path" "$download_url"
+                    echo "No update needed for $local_path"
+                fi
+            else
+                echo "Downloading $local_path"
+                if ! curl -sS -o "$local_path" "$download_url"; then
+                    echo "Error: Failed to download $download_url" >&2
                 fi
             fi
-        done
-    else
-        echo "Error: Unexpected response format for $path" >&2
-        debug "Full response: $response"
-    fi
+        elif [ "$type" == "dir" ]; then
+            download_folder "$path" "$to"
+        fi
+    done
 }
 
-for f in "${FROM_TO[@]}"; do
+echo "Starting dotfiles update script..."
+if [ -n "$GITHUB_PAT" ]; then
+    echo "Using GitHub Personal Access Token for authentication."
+else
+    echo "No GitHub Personal Access Token provided. Requests may be subject to stricter rate limiting."
+fi
+
+if [ "$DEBUG" = true ]; then
+    echo "Debug mode is enabled."
+else
+    echo "Debug mode is disabled. Set DEBUG=true to enable debug output."
+fi
+
+for f in "${from_to[@]}"; do
     from=$(echo "$f" | cut -d ";" -f 1)
     to=$(echo "$f" | cut -d ";" -f 2)
-    download_item "$from" "$to"
+    download_folder "$from" "$to"
 done
+
+echo "Dotfiles update complete."
