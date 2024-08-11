@@ -10,42 +10,52 @@ FROM_TO=(".config;$HOME")
 GITHUB_TOKEN=${GITHUB_TOKEN:-""}
 AUTH_HEADER=${GITHUB_TOKEN:+"Authorization: token $GITHUB_TOKEN"}
 
+parse_json() {
+    local json="$1"
+    local query="$2"
+    echo "$json" | jq -r "$query" 2>/dev/null || echo ""
+}
+
 download_item() {
     local path=$1
     local to=$2
     local api_url="https://api.github.com/repos/$USERNAME/$REPO/contents/$path?ref=$BRANCH"
     local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" -H "$AUTH_HEADER" "$api_url")
 
-    if echo "$response" | jq -e '.message and .message | contains("API rate limit exceeded")' > /dev/null; then
+    if parse_json "$response" '.message | select(. | contains("API rate limit exceeded"))' | grep -q .; then
         echo "Error: GitHub API rate limit exceeded. Set GITHUB_TOKEN env variable." >&2
         exit 1
     fi
 
-    echo "$response" | jq -c '.[]?' | while read -r item; do
-        local item_path=$(echo "$item" | jq -r '.path')
-        local item_type=$(echo "$item" | jq -r '.type')
-        local download_url=$(echo "$item" | jq -r '.download_url')
-        local local_path="$to/$item_path"
+    if parse_json "$response" 'if type == "array" then .[] else . end' | jq -c '.' | grep -q .; then
+        echo "$response" | jq -c 'if type == "array" then .[] else . end' | while read -r item; do
+            local item_path=$(parse_json "$item" '.path')
+            local item_type=$(parse_json "$item" '.type')
+            local download_url=$(parse_json "$item" '.download_url')
+            local local_path="$to/$item_path"
 
-        if [ "$item_type" = "dir" ]; then
-            mkdir -p "$local_path"
-            download_item "$item_path" "$to"
-        elif [ "$item_type" = "file" ]; then
-            if [ -f "$local_path" ]; then
-                local_date=$(stat -c %Y "$local_path")
-                commit_info=$(curl -sS -H "$AUTH_HEADER" "https://api.github.com/repos/$USERNAME/$REPO/commits?path=$item_path&page=1&per_page=1")
-                commit_date=$(echo "$commit_info" | jq -r '.[0].commit.author.date')
-                
-                if [ $(date -d "$commit_date" +%s) -gt $(date -d "@$local_date" +%s) ]; then
-                    echo "Updating $local_path"
+            if [ "$item_type" = "dir" ]; then
+                mkdir -p "$local_path"
+                download_item "$item_path" "$to"
+            elif [ "$item_type" = "file" ]; then
+                if [ -f "$local_path" ]; then
+                    local_date=$(stat -c %Y "$local_path")
+                    commit_info=$(curl -sS -H "$AUTH_HEADER" "https://api.github.com/repos/$USERNAME/$REPO/commits?path=$item_path&page=1&per_page=1")
+                    commit_date=$(parse_json "$commit_info" '.[0].commit.author.date')
+                    
+                    if [ -n "$commit_date" ] && [ $(date -d "$commit_date" +%s) -gt $(date -d "@$local_date" +%s) ]; then
+                        echo "Updating $local_path"
+                        curl -sS -o "$local_path" "$download_url"
+                    fi
+                else
+                    echo "Downloading $local_path"
                     curl -sS -o "$local_path" "$download_url"
                 fi
-            else
-                echo "Downloading $local_path"
-                curl -sS -o "$local_path" "$download_url"
             fi
-        fi
-    done
+        done
+    else
+        echo "Error: Unexpected response format for $path" >&2
+    fi
 }
 
 for f in "${FROM_TO[@]}"; do
