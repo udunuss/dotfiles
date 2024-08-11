@@ -8,133 +8,70 @@ branch="main"
 repo="dotfiles"
 from_to=(".config;$HOME")
 
-# GitHub Personal Access Token
-# Create one at https://github.com/settings/tokens
-# and set it as an environment variable:
-#export GITHUB_PAT=
-
+# GitHub Personal Access Token (PAT)
+# Create a PAT at https://github.com/settings/tokens and set it as an environment variable:
+# export GITHUB_PAT=your_token_here
 GITHUB_PAT=${GITHUB_PAT:-}
+
 # Debug flag (set to true to enable debug output)
 DEBUG=${DEBUG:-false}
 
+# Temporary directory for cloning the repository
+TEMP_DIR=$(mktemp -d)
 
 debug_output() {
     if [ "$DEBUG" = true ]; then
         echo "DEBUG: $1" >&2
-        echo "$2" | jq '.' >&2 || echo "Failed to parse JSON" >&2
     fi
 }
 
-github_api_request() {
-    local url=$1
-    local max_retries=5
-    local wait_time=5
-
-    for ((i=0; i<max_retries; i++)); do
-        local response
-        if [ -n "$GITHUB_PAT" ]; then
-            response=$(curl -sS -H "Authorization: token $GITHUB_PAT" -H "Accept: application/vnd.github.v3+json" "$url")
-        else
-            response=$(curl -sS -H "Accept: application/vnd.github.v3+json" "$url")
-        fi
-
-        if echo "$response" | jq -e 'if type=="object" then .message | contains("API rate limit exceeded") else false end' > /dev/null 2>&1; then
-            echo "Rate limit exceeded. Waiting $wait_time seconds before retry..." >&2
-            sleep $wait_time
-            wait_time=$((wait_time * 2))
-        else
-            echo "$response"
-            return 0
-        fi
-    done
-
-    echo "Error: Maximum retries reached. Unable to complete the request." >&2
-    return 1
+clone_repository() {
+    local clone_url="https://github.com/$username/$repo.git"
+    if [ -n "$GITHUB_PAT" ]; then
+        clone_url="https://$GITHUB_PAT@github.com/$username/$repo.git"
+    fi
+    git clone --depth 1 --branch "$branch" "$clone_url" "$TEMP_DIR"
 }
 
-download_folder() {
-    local from=$1
-    local to=$2
-    local api_url="https://api.github.com/repos/$username/$repo/contents/$from?ref=$branch"
-    local response
-
-    response=$(github_api_request "$api_url")
-    debug_output "API Response for $from:" "$response"
-
-    if ! echo "$response" | jq -e 'if type=="array" then true else false end' > /dev/null 2>&1; then
-        echo "Error: Unexpected JSON response from GitHub API for $from" >&2
-        return 1
-    fi
-
-    echo "$response" | jq -r '.[] | @base64' | while read -r item; do
-        decoded=$(echo "$item" | base64 --decode)
-        debug_output "Decoded item:" "$decoded"
-
-        name=$(echo "$decoded" | jq -r '.name // empty')
-        path=$(echo "$decoded" | jq -r '.path // empty')
-        type=$(echo "$decoded" | jq -r '.type // empty')
-        
-        if [ -z "$name" ] || [ -z "$path" ] || [ -z "$type" ]; then
-            echo "Error: Missing required fields in item" >&2
+update_dotfiles() {
+    for mapping in "${from_to[@]}"; do
+        local from=$(echo "$mapping" | cut -d ";" -f 1)
+        local to=$(echo "$mapping" | cut -d ";" -f 2)
+        to="$to/$from"
+        if [ ! -d "$TEMP_DIR/$from" ]; then
+            echo "Error: Source directory $from not found in the repository" >&2
             continue
         fi
 
-        if [ "$type" == "file" ]; then
-            download_url=$(echo "$decoded" | jq -r '.download_url // empty')
-            if [ -z "$download_url" ]; then
-                echo "Error: Missing download_url for $path" >&2
-                continue
+        find "$TEMP_DIR/$from" -type f | while read -r src_file; do
+            local rel_path="${src_file#$TEMP_DIR/$from/}"
+            local dest_file="$to/$rel_path"
+            local dest_dir=$(dirname "$dest_file")
+
+            if [ ! -d "$dest_dir" ]; then
+                mkdir -p "$dest_dir"
             fi
 
-            local_path="$to/$path"
-            local_dir=$(dirname "$local_path")
-            
-            mkdir -p "$local_dir"
-            
-            if [ -f "$local_path" ]; then
-                local_date=$(stat -c %Y "$local_path")
-                commit_info=$(github_api_request "https://api.github.com/repos/$username/$repo/commits?path=$path")
-                debug_output "Commit info for $path:" "$commit_info"
-                
-                if ! echo "$commit_info" | jq -e 'if type=="array" then .[0] else false end' > /dev/null 2>&1; then
-                    echo "Error: Unable to fetch commit information for $path" >&2
-                    continue
-                fi
-
-                commit_date=$(echo "$commit_info" | jq -r '.[0].commit.author.date // empty')
-                if [ -z "$commit_date" ]; then
-                    echo "Error: Unable to extract commit date for $path" >&2
-                    continue
-                fi
-
-                local_date=$(date -d "@$local_date" +%s)
-                commit_date=$(date -d "$commit_date" +%s)
-                
-                if [[ "$commit_date" -gt "$local_date" ]]; then
-                    echo "Updating $local_path"
-                    if ! curl -sS -o "$local_path" "$download_url"; then
-                        echo "Error: Failed to download $download_url" >&2
-                    fi
-                else
-                    echo "No update needed for $local_path"
-                fi
+            if [ ! -f "$dest_file" ] || ! cmp -s "$src_file" "$dest_file"; then
+                cp "$src_file" "$dest_file"
+                echo "Updated: $dest_file"
             else
-                echo "Downloading $local_path"
-                if ! curl -sS -o "$local_path" "$download_url"; then
-                    echo "Error: Failed to download $download_url" >&2
-                fi
+                echo "No update needed for $dest_file"
             fi
-        elif [ "$type" == "dir" ]; then
-            download_folder "$path" "$to"
-        fi
+        done
     done
+}
+
+cleanup() {
+    debug_output "Cleaning up temporary directory: $TEMP_DIR"
+    rm -rf "$TEMP_DIR"
 }
 
 echo "Starting dotfiles update script..."
 if [ -n "$GITHUB_PAT" ]; then
     echo "Using GitHub Personal Access Token for authentication."
 else
-    echo "No GitHub Personal Access Token provided. Requests may be subject to stricter rate limiting."
+    echo "No GitHub Personal Access Token provided. Cloning may be subject to stricter rate limiting."
 fi
 
 if [ "$DEBUG" = true ]; then
@@ -143,10 +80,9 @@ else
     echo "Debug mode is disabled. Set DEBUG=true to enable debug output."
 fi
 
-for f in "${from_to[@]}"; do
-    from=$(echo "$f" | cut -d ";" -f 1)
-    to=$(echo "$f" | cut -d ";" -f 2)
-    download_folder "$from" "$to"
-done
+trap cleanup EXIT
+
+clone_repository
+update_dotfiles
 
 echo "Dotfiles update complete."
