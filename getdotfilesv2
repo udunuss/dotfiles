@@ -1,29 +1,52 @@
 #!/bin/bash
 
+set -e
+set -o pipefail
+
 username="udunuss"
 branch="main"
 repo="dotfiles"
 from_to=(".config;$HOME")
 
+debug_output() {
+    echo "DEBUG: $1" >&2
+    echo "$2" | jq '.' >&2 || echo "Failed to parse JSON" >&2
+}
+
 download_folder() {
     local from=$1
     local to=$2
     local api_url="https://api.github.com/repos/$username/$repo/contents/$from?ref=$branch"
-    local response=$(curl -sS -H "Accept: application/vnd.github.v3+json" "$api_url")
+    local response
+    
+    response=$(curl -sS -H "Accept: application/vnd.github.v3+json" "$api_url")
+    debug_output "API Response for $from:" "$response"
 
     if ! echo "$response" | jq -e . >/dev/null 2>&1; then
-        echo "Error: Invalid JSON response from GitHub API for $from"
+        echo "Error: Invalid JSON response from GitHub API for $from" >&2
         return 1
     fi
 
     echo "$response" | jq -r '.[] | @base64' | while read -r item; do
         decoded=$(echo "$item" | base64 --decode)
-        name=$(echo "$decoded" | jq -r '.name')
-        path=$(echo "$decoded" | jq -r '.path')
-        type=$(echo "$decoded" | jq -r '.type')
+        debug_output "Decoded item:" "$decoded"
+
+        name=$(echo "$decoded" | jq -r '.name // empty')
+        path=$(echo "$decoded" | jq -r '.path // empty')
+        type=$(echo "$decoded" | jq -r '.type // empty')
         
+        if [ -z "$name" ] || [ -z "$path" ] || [ -z "$type" ]; then
+            echo "Error: Missing required fields in item" >&2
+            continue
+        fi
+
         if [ "$type" == "file" ]; then
-            download_url=$(echo "$decoded" | jq -r '.download_url')
+            download_url=$(echo "$decoded" | jq -r '.download_url // empty')
+            if [ -z "$download_url" ]; then
+                echo "Error: Missing download_url for $path" >&2
+                continue
+            fi
+
             local_path="$to/$path"
             local_dir=$(dirname "$local_path")
             
@@ -32,20 +55,26 @@ download_folder() {
             if [ -f "$local_path" ]; then
                 local_date=$(stat -c %Y "$local_path")
                 commit_info=$(curl -sS -H "Time-Zone: UTC" -L "https://api.github.com/repos/$username/$repo/commits?path=$path")
+                debug_output "Commit info for $path:" "$commit_info"
                 
                 if ! echo "$commit_info" | jq -e '.[0]' >/dev/null 2>&1; then
-                    echo "Error: Unable to fetch commit information for $path"
+                    echo "Error: Unable to fetch commit information for $path" >&2
                     continue
                 fi
 
-                commit_date=$(echo "$commit_info" | jq -r '.[0].commit.author.date')
+                commit_date=$(echo "$commit_info" | jq -r '.[0].commit.author.date // empty')
+                if [ -z "$commit_date" ]; then
+                    echo "Error: Unable to extract commit date for $path" >&2
+                    continue
+                fi
+
                 local_date=$(date -d "@$local_date" +%s)
                 commit_date=$(date -d "$commit_date" +%s)
                 
                 if [[ "$commit_date" -gt "$local_date" ]]; then
                     echo "Updating $local_path"
                     if ! curl -sS -o "$local_path" "$download_url"; then
-                        echo "Error: Failed to download $download_url"
+                        echo "Error: Failed to download $download_url" >&2
                     fi
                 else
                     echo "No update needed for $local_path"
@@ -53,7 +82,7 @@ download_folder() {
             else
                 echo "Downloading $local_path"
                 if ! curl -sS -o "$local_path" "$download_url"; then
-                    echo "Error: Failed to download $download_url"
+                    echo "Error: Failed to download $download_url" >&2
                 fi
             fi
         elif [ "$type" == "dir" ]; then
