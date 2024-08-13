@@ -1,5 +1,5 @@
 [Desktop Entry]
-Exec=sh -c "sleep 3 ; flatpak run me.timschneeberger.GalaxyBudsClient /StartMinimized"
+Exec=flatpak --socket=x11 run me.timschneeberger.GalaxyBudsClient /StartMinimized
 Name=GalaxyBudsClient
 StartupNotify=false
 Terminal=false
