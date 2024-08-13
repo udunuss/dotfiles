@@ -1,6 +1,6 @@
 [Desktop Entry]
 Categories=Network;FileTransfer;P2P;Qt;
-Exec=/bin/bash -c "sleep 3; qbittorrent"
+Exec=sh -c "sleep 3; qbittorrent"
 GenericName=BitTorrent client
 Comment=Download and share files over BitTorrent
 Icon=qbittorrent
