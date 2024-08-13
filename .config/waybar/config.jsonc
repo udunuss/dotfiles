@@ -19,7 +19,7 @@
       }
     },
 "custom/weather": {
-    "exec": "python ~/.config/waybar/scripts/weather.py",
+    "exec": "python3 ~/.config/waybar/scripts/weather.py",
     "restart-interval": 300,
     "return-type": "json",
     "on-click": "xdg-open https://weather.com/en-IN/weather/today/l/$WEATHER_LOCATION_ID"
@@ -56,7 +56,7 @@
       "format-connected": " {num_connections}",
       "tooltip-format": "{device_enumerate}",
       "tooltip-format-enumerate-connected": "{device_alias}   {device_address}",
-      "on-click": "sh $HOME/.config/rofi/applets/bin/rofi-bluetooth",
+      "on-click": "blueberry",
     },
    
     "network": {
