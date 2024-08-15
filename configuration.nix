@@ -4,6 +4,7 @@
 
 { config, pkgs, ... }:
 let
+  fenix = import (fetchTarball "https://github.com/nix-community/fenix/archive/main.tar.gz") { };
   # Import the unstable channel
   unstableTarball = 
     fetchTarball 
@@ -27,18 +28,13 @@ environment.variables = {
     TERMINAL = "kitty";
     TERM = "kitty";
     EDITOR = "nvim";
-    QT_QPA_PLATFORMTHEME = "qt5ct";
-    QT_STYLE_OVERRIDE = "kvantum";
-    QT_AUTO_SCREEN_SCALE_FACTOR = "1";
-    QT_QPA_PLATFORM = "wayland;xcb";
   };
-
 
   boot.kernelParams = [
     "initcall_blacklist=simpledrm_platform_driver_init"
   ];
    hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+    package = config.boot.kernelPackages.nvidiaPackages.beta;
     modesetting.enable = true;
   };
  services.xserver.videoDrivers = [ "nvidia" ]; 
@@ -139,9 +135,10 @@ fonts.packages = with pkgs; [
 environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
 
+  fenix.minimal.toolchain
   ] ++ (with unstable; [
-  xwayland
 
+  lxqt.lxqt-policykit
   eog
   yelp
   file-roller
@@ -149,6 +146,7 @@ environment.systemPackages = with pkgs; [
   nautilus
   nautilus-python
   bat
+  neovim-unwrapped
 
   zlib
   bluez
@@ -165,11 +163,12 @@ environment.systemPackages = with pkgs; [
 
   wget
   google-chrome
-  firefox
-  neovim
+  firefox-beta-bin
   git
   fzf
   kitty
+
+
   hyprland
   procps
   dex
@@ -177,8 +176,8 @@ environment.systemPackages = with pkgs; [
   libappindicator
   hyprpaper
   hyprlock
-  bibata-cursors
   rofi-wayland
+
   mpv
   (python3Full.withPackages(ps: with ps; [ pyquery ]))
   jq
@@ -187,14 +186,18 @@ environment.systemPackages = with pkgs; [
   nomacs
   
   #theme
-    libsForQt5.qt5ct
+    kdePackages.breeze
+    libsForQt5.full
+    libsForQt5.qt5.qtwayland
+    libsForQt5.qtkeychain
+
+    gnome-themes-extra
+    bibata-cursors
     libsForQt5.qtstyleplugin-kvantum
-    qt6Packages.qt6ct
     qt6Packages.qtstyleplugin-kvantum
     adw-gtk3
     adwaita-qt
     adwaita-qt6
-    lxappearance # for GTK theme configuration
     adwaita-icon-theme
 
   ]);
