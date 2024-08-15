@@ -136,8 +136,11 @@ environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
 
   fenix.minimal.toolchain
+  xdg-utils
+
   ] ++ (with unstable; [
 
+  gnome-terminal
   lxqt.lxqt-policykit
   eog
   yelp
@@ -218,6 +221,9 @@ environment.systemPackages = with pkgs; [
   };
 
   environment.variables.PYTHON = "${pkgs.python3}/bin/python";
+  environment.sessionVariables = {
+    TERMINAL= "kitty";
+  };
   programs.hyprland = {
     # Install the packages from nixpkgs
     enable = true;
