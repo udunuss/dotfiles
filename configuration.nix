@@ -20,23 +20,21 @@ in
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
-
-boot.kernelPackages = pkgs.linuxPackages_latest;
+boot.kernelPackages = pkgs.linuxPackages_zen;
 boot.supportedFilesystems = [ "ntfs" ];
 environment.variables = {
     BROWSER = "firefox";
-    TERMINAL = "kitty";
-    TERM = "kitty";
     EDITOR = "nvim";
   };
-
   boot.kernelParams = [
     "initcall_blacklist=simpledrm_platform_driver_init"
   ];
    hardware.nvidia = {
-    package = config.boot.kernelPackages.nvidiaPackages.beta;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
     modesetting.enable = true;
   };
+  hardware.bluetooth.enable = true;
+services.blueman.enable = true;
  services.xserver.videoDrivers = [ "nvidia" ]; 
 
  # Bootloader.
@@ -77,8 +75,8 @@ environment.variables = {
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.wayland = true;
   services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
-  services.gnome.core-utilities.enable = false;
+  #services.xserver.desktopManager.gnome.enable = true;
+  #services.gnome.core-utilities.enable = false;
  # Configure keymap in X11
   services.xserver = {
     xkb.layout = "us";
@@ -88,6 +86,15 @@ environment.variables = {
   # Enable CUPS to print documents.
   services.printing.enable = true;
   programs.xwayland.enable = true;
+  services.gvfs.enable = true;
+  programs.thunar = {
+    enable = true;
+    plugins = with pkgs.xfce; [
+      thunar-archive-plugin
+      thunar-volman
+    ];
+  };
+  
   # Enable sound with pipewire.
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -127,8 +134,7 @@ services.xserver.excludePackages = [ pkgs.xterm ];
   remotePlay.openFirewall = true; # Open ports in the firewall for Steam Remote Play
   dedicatedServer.openFirewall = true; # Open ports in the firewall for Source Dedicated Server
 };
-services.flatpak.enable = true;
-
+ services.flatpak.enable = true;
 fonts.packages = with pkgs; [
   nerdfonts
   ];
@@ -139,15 +145,24 @@ environment.systemPackages = with pkgs; [
   xdg-utils
 
   ] ++ (with unstable; [
-
-  gnome-terminal
+  xfce.xfce4-settings
+  xdg-terminal-exec-mkhl
+  htop-vim
+      
+  gvfs
+  nfs-utils
+  ntfs3g
+  unzip
+  xdotool
+  freetype
+  haskellPackages.freetype2
   lxqt.lxqt-policykit
   eog
   yelp
   file-roller
-  nautilus-open-any-terminal
-  nautilus
-  nautilus-python
+  xfce.thunar
+  xfce.thunar-volman
+  xfce.thunar-archive-plugin
   bat
   neovim-unwrapped
 
@@ -158,8 +173,6 @@ environment.systemPackages = with pkgs; [
   networkmanagerapplet
 
   libgcc
-  dotnet-sdk
-  dotnet-runtime
 
   steam
   qbittorrent
@@ -170,7 +183,7 @@ environment.systemPackages = with pkgs; [
   git
   fzf
   kitty
-
+  nautilus
 
   hyprland
   procps
@@ -185,7 +198,7 @@ environment.systemPackages = with pkgs; [
   (python3Full.withPackages(ps: with ps; [ pyquery ]))
   jq
   killall
-  wl-clipboard-rs
+  wl-clipboard
   nomacs
   
   #theme
@@ -206,24 +219,23 @@ environment.systemPackages = with pkgs; [
   ]);
   xdg.portal.config.common.default = [ "gtk" ];
   xdg.mime.enable=true;
+
     xdg.mime.defaultApplications = {
     "text/html" = "firefox.desktop";
     "x-scheme-handler/http" = "firefox.desktop";
     "x-scheme-handler/https" = "firefox.desktop";
     "application/pdf" = "firefox.desktop";
-    "image/jpeg" = "org.gnome.Loupe.desktop";
-    "image/png" = "org.gnome.Loupe.desktop";
+    "image/jpeg" = "org.nomacs.ImageLounge.desktop";
+    "image/png" = "org.nomacs.ImageLounge.desktop";
     "x-scheme-handler/terminal" = "kitty.desktop";
-    "application/x-terminal-emulator" = "kitty.desktop";
-    
-    # You might also want to set it for SSH connections
-    "x-scheme-handler/ssh" = "kitty.desktop";
   };
-
+environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    TERMINAL = "kitty";
+    TERM = "kitty";
+  };
   environment.variables.PYTHON = "${pkgs.python3}/bin/python";
-  environment.sessionVariables = {
-    TERMINAL= "kitty";
-  };
+
   programs.hyprland = {
     # Install the packages from nixpkgs
     enable = true;
