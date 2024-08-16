@@ -145,6 +145,7 @@ environment.systemPackages = with pkgs; [
   xdg-utils
 
   ] ++ (with unstable; [
+  vulkan-tools
   xfce.xfce4-settings
   xdg-terminal-exec-mkhl
   htop-vim
