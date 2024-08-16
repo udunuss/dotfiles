@@ -20,7 +20,9 @@ window#waybar {
   padding-left: 10px;
   padding-right: 10px;
 }
-
+#workspaces {
+  margin-left: 15px;
+}
 #custom-arch {
   font-size: 20px;
   margin-left: 15px;
