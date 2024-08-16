@@ -10,6 +10,7 @@
 /*****----- Configuration -----*****/
 configuration {
     show-icons:                 false;
+    click-to-exit:               true;
 }
 
 /*****----- Global Properties -----*****/
@@ -20,11 +21,11 @@ configuration {
 window {
     /* properties for window widget */
     transparency:                "real";
-    location:                    center;
+    location:                    northeast;
     anchor:                      center;
     fullscreen:                  false;
     width:                       400px;
-    x-offset:                    0px;
+    x-offset:                    -15px;
     y-offset:                    0px;
 
     /* properties for all widgets */

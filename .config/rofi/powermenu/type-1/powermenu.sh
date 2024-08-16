@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-## Author : Aditya Shakya (adi1090x)
+
+# Show Rofi menu
+    ## Author : Aditya Shakya (adi1090x)
 ## Github : @adi1090x
 #
 ## Rofi   : Power Menu
@@ -28,13 +30,19 @@ no='󰜺 No'
 
 # Rofi CMD
 rofi_cmd() {
-	rofi -dmenu \
-		-p "Uptime: $uptime" \
-		-theme ${dir}/${theme}.rasi
+	    # Check if rofi is already running and close it if so
+    if pgrep -x rofi > /dev/null; then
+        pkill rofi
+        sleep 0.1  
+	return
+    fi
+	rofi -dmenu -p "Uptime: $uptime" -theme ${dir}/${theme}.rasi
 }
 
 # Confirmation CMD
 confirm_cmd() {
+	# Get mouse position
+
 	rofi -theme-str 'window {location: center; anchor: center; fullscreen: false; width: 250px;}' \
 		-theme-str 'listview {columns: 2; lines: 1;}' \
 		-theme-str 'element-text {horizontal-align: 0.5;}' \
@@ -76,6 +84,8 @@ run_cmd() {
 				i3-msg exit
 			elif [[ "$DESKTOP_SESSION" == 'plasma' ]]; then
 				qdbus org.kde.ksmserver /KSMServer logout 0 0 0
+			elif [[ "$DESKTOP_SESSION" == 'hyprland' ]]; then
+				hyprctl dispatch exit
 			fi
 		fi
 	else

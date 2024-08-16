@@ -10,6 +10,7 @@
 /*****----- Configuration -----*****/
 configuration {
     show-icons:                 false;
+    click-to-exit:		true;
 }
 
 /*****----- Global Properties -----*****/
