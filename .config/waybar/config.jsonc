@@ -27,8 +27,8 @@
     // "format-alt": "{alt}",
 },
   "clock": {
-      "interval": 1,
-      "format": "{:%d-%m-%Y%H:%M:%S}",
+      "interval": 60,
+      "format": "{:%A, %B %d, %Y%H:%M}",
       "tooltip": false
     },
       "tray": {
