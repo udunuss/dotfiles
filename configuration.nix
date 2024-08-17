@@ -1,4 +1,4 @@
-#Edit this configuration file to define what should be installed on
+#1Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
@@ -20,6 +20,7 @@ in
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
+system.activationScripts.chmod = '' chmod +w /dev/shm'';
 boot.kernelPackages = pkgs.linuxPackages_zen;
 boot.supportedFilesystems = [ "ntfs" ];
 environment.variables = {
@@ -87,6 +88,7 @@ services.blueman.enable = true;
   services.printing.enable = true;
   programs.xwayland.enable = true;
   services.gvfs.enable = true;
+  programs.dconf.enable = true;
   programs.thunar = {
     enable = true;
     plugins = with pkgs.xfce; [
@@ -147,6 +149,7 @@ environment.systemPackages = with pkgs; [
   ] ++ (with unstable; [
   vulkan-tools
   xfce.xfce4-settings
+  xfce.xfwm4-themes
   xdg-terminal-exec-mkhl
   htop-vim
       
@@ -177,15 +180,20 @@ environment.systemPackages = with pkgs; [
 
   steam
   qbittorrent
+  ffmpeg-full
+  nwjs-ffmpeg-prebuilt
+  popcorntime
 
   wget
   google-chrome
-  firefox-beta-bin
+  firefox-bin
   git
   fzf
   kitty
   nautilus
 
+  wayland
+  wayland-utils
   hyprland
   procps
   dex
@@ -203,15 +211,15 @@ environment.systemPackages = with pkgs; [
   nomacs
   
   #theme
-    kdePackages.breeze
+    nwg-look
+    orchis-theme
     libsForQt5.full
     libsForQt5.qt5.qtwayland
     libsForQt5.qtkeychain
+    libsForQt5.qtstyleplugins
 
     gnome-themes-extra
     bibata-cursors
-    libsForQt5.qtstyleplugin-kvantum
-    qt6Packages.qtstyleplugin-kvantum
     adw-gtk3
     adwaita-qt
     adwaita-qt6
@@ -231,7 +239,6 @@ environment.systemPackages = with pkgs; [
     "x-scheme-handler/terminal" = "kitty.desktop";
   };
 environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";
     TERMINAL = "kitty";
     TERM = "kitty";
   };
