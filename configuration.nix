@@ -23,10 +23,6 @@ in
 system.activationScripts.chmod = '' chmod +w /dev/shm'';
 boot.kernelPackages = pkgs.linuxPackages_zen;
 boot.supportedFilesystems = [ "ntfs" ];
-environment.variables = {
-    BROWSER = "firefox";
-    EDITOR = "nvim";
-  };
   boot.kernelParams = [
     "initcall_blacklist=simpledrm_platform_driver_init"
   ];
@@ -237,10 +233,6 @@ environment.systemPackages = with pkgs; [
     "image/jpeg" = "org.nomacs.ImageLounge.desktop";
     "image/png" = "org.nomacs.ImageLounge.desktop";
     "x-scheme-handler/terminal" = "kitty.desktop";
-  };
-environment.sessionVariables = {
-    TERMINAL = "kitty";
-    TERM = "kitty";
   };
   environment.variables.PYTHON = "${pkgs.python3}/bin/python";
 
