@@ -1,7 +1,5 @@
 {
   "layer": "top",
-    "output": ["DP-1"],
-    "modules-left": ["hyprland/workspaces"],
     "modules-center": ["clock","custom/weather"],
     "modules-right": ["tray", "backlight", "pulseaudio", "bluetooth", "network", "battery", "custom/arch"],
     "custom/arch": {
