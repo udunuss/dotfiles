@@ -20,8 +20,9 @@ in
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
-system.activationScripts.chmod = '' chmod +w /dev/shm'';
-boot.kernelPackages = pkgs.linuxPackages_zen;
+boot.kernelPackages = pkgs.linuxPackages_latest;
+boot.kernelModules = [ "kvm-intel" "kvm-amd" "broadcom_sta" ];
+
 boot.supportedFilesystems = [ "ntfs" ];
   boot.kernelParams = [
     "initcall_blacklist=simpledrm_platform_driver_init"
@@ -30,26 +31,30 @@ boot.supportedFilesystems = [ "ntfs" ];
     package = config.boot.kernelPackages.nvidiaPackages.stable;
     modesetting.enable = true;
   };
-  hardware.bluetooth.enable = true;
+  hardware.bluetooth = {
+    enable = true;
+    package = pkgs.bluez;
+  };
 services.blueman.enable = true;
  services.xserver.videoDrivers = [ "nvidia" ]; 
 
  # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  networking = {
+  hostName = "nixos"; # Define your hostname.
+  wireless.iwd.enable = true;
+  networkmanager.enable = true;
+  networkmanager.wifi.backend = "iwd";
+  };
 
-  networking.hostName = "nixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
   # networking.proxy.default = "http://user:password@proxy:port/";
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
-  # Enable networking
-  networking.networkmanager.enable = true;
-  boot.extraModulePackages = with config.boot.kernelPackages; [ rtl88xxau-aircrack ];
-  networking.wireless.iwd.enable = true;
-  networking.networkmanager.wifi.backend = "iwd";
+
   # Set your time zone.
   time.timeZone = "Europe/Istanbul";
 
@@ -138,7 +143,6 @@ fonts.packages = with pkgs; [
   ];
 environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-
   fenix.minimal.toolchain
   xdg-utils
 
@@ -168,11 +172,18 @@ environment.systemPackages = with pkgs; [
 
   zlib
   bluez
+  bluetuith
+  #tui
+  impala
+  gtop
+  nnn
+  yazi
 
-  blueberry
   networkmanagerapplet
 
   libgcc
+  gcc
+  rustup
 
   steam
   qbittorrent
@@ -186,10 +197,13 @@ environment.systemPackages = with pkgs; [
   git
   fzf
   kitty
+  alacritty
   nautilus
 
   wayland
   wayland-utils
+  swaynotificationcenter
+  xdg-desktop-portal-hyprland
   hyprland
   procps
   dex
