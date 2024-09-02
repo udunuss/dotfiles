@@ -1,7 +1,13 @@
 set -g fish_greeting
+set RED (set_color -o red)
+set ORANGE (set_color -o yellow)
+set BLUE (set_color -o blue)
+set GREEN (set_color -o green)
+set STOP (set_color normal)
 
 function print_info
 if test -n "$SSH_CLIENT" -o -n "$SSH_TTY"
+    printf "%s" $ORANGE
     toilet -d /usr/share/figlet/fonts -f 3d "ssh connection" -t -F border -SWk
     else
     fastfetch
@@ -31,4 +37,3 @@ abbr .4 'cd ../../../..'
 abbr .5 'cd ../../../../..'
 
 # Always mkdir a path (this doesn't inhibit functionality to make a single dir)
-abbr mkdir 'mkdir -p'
