@@ -89,7 +89,7 @@ clone_repository
 
 
 
-# Function to detect the package manager
+(# Function to detect the package manager
 detect_package_manager() {
     if command -v paru &> /dev/null; then
         echo "paru"
@@ -145,7 +145,7 @@ while IFS= read -r line; do
         echo "Installing package: $package"
         install_package "$package"
     fi
-done << echo "${$TEMP_DIR/pkgs.install}"
+done) << echo "${$TEMP_DIR/pkgs.install}"
 
 update_dotfiles
 echo "Dotfiles update complete."
