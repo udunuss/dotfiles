@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -e
 set -o pipefail
 
@@ -42,18 +41,21 @@ update_dotfiles() {
             echo "Error: Source directory $from not found in the repository" >&2
             continue
         fi
-
         find "$TEMP_DIR/$from" -type f | while read -r src_file; do
             local rel_path="${src_file#$TEMP_DIR/$from/}"
             local dest_file="$to/$rel_path"
             local dest_dir=$(dirname "$dest_file")
-
             if [ ! -d "$dest_dir" ]; then
-                mkdir -p "$dest_dir"
+                if ! mkdir -p "$dest_dir" 2>/dev/null; then
+                    echo "Sudo required to create directory: $dest_dir"
+                    sudo mkdir -p "$dest_dir"
+                fi
             fi
-
             if [ ! -f "$dest_file" ] || ! cmp -s "$src_file" "$dest_file"; then
-                cp "$src_file" "$dest_file"
+                if ! cp "$src_file" "$dest_file" 2>/dev/null; then
+                    echo "Sudo required to update file: $dest_file"
+                    sudo cp "$src_file" "$dest_file"
+                fi
                 echo "Updated: $dest_file"
             else
                 echo "No update needed for $dest_file"
@@ -84,5 +86,4 @@ trap cleanup EXIT
 
 clone_repository
 update_dotfiles
-
 echo "Dotfiles update complete."
