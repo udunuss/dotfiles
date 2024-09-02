@@ -140,6 +140,44 @@ vim.opt.rtp:prepend(lazypath)
 -- NOTE: Here is where you install your plugins.
 require("lazy").setup({
 
+	--███╗   ███╗██╗   ██╗    ██████╗ ██╗     ██╗   ██╗ ██████╗ ██╗███╗   ██╗███████╗
+	--████╗ ████║╚██╗ ██╔╝    ██╔══██╗██║     ██║   ██║██╔════╝ ██║████╗  ██║██╔════╝
+	--██╔████╔██║ ╚████╔╝     ██████╔╝██║     ██║   ██║██║  ███╗██║██╔██╗ ██║███████╗
+	--██║╚██╔╝██║  ╚██╔╝      ██╔═══╝ ██║     ██║   ██║██║   ██║██║██║╚██╗██║╚════██║
+	--██║ ╚═╝ ██║   ██║       ██║     ███████╗╚██████╔╝╚██████╔╝██║██║ ╚████║███████║
+	--╚═╝     ╚═╝   ╚═╝       ╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝╚══════╝
+
+	--Desc: suda is a plugin to read or write files with sudo command.
+	{ "lambdalisue/vim-suda" },
+
+	--Desc: nvim-scrollview is a Neovim plugin that displays interactive vertical scrollbars and signs. The plugin is customizable (see :help scrollview-configuration).
+	{
+		"dstein64/nvim-scrollview",
+		opts = {
+			signs_on_startup = { "all" },
+			diagnostics_severities = { vim.diagnostic.severity.ERROR },
+		},
+	},
+
+	--Desc: Remove all background colors to make nvim transparent.
+	{ "xiyaowong/transparent.nvim" },
+
+	--Desc: Vim be good is a plugin designed to make you better at vim by creating a game to practice basic movements in.
+	{ "ThePrimeagen/vim-be-good" },
+
+	--Desc: Use (neo)vim terminal in the floating/popup window
+	{ "voldikss/vim-floaterm" },
+
+	--Desc: Yazi is a blazing fast file manager for the terminal. This plugin allows you to open yazi in a floating window in Neovim.
+	{ "mikavilpas/yazi.nvim", opts = {} },
+
+	--██╗███╗   ███╗██╗   ██╗    ██████╗ ██╗     ██╗   ██╗ ██████╗ ██╗███╗   ██╗███████╗
+	--██║████╗ ████║╚██╗ ██╔╝    ██╔══██╗██║     ██║   ██║██╔════╝ ██║████╗  ██║██╔════╝
+	--██║██╔████╔██║ ╚████╔╝     ██████╔╝██║     ██║   ██║██║  ███╗██║██╔██╗ ██║███████╗
+	--╚═╝██║╚██╔╝██║  ╚██╔╝      ██╔═══╝ ██║     ██║   ██║██║   ██║██║██║╚██╗██║╚════██║
+	--██╗██║ ╚═╝ ██║   ██║       ██║     ███████╗╚██████╔╝╚██████╔╝██║██║ ╚████║███████║
+	--╚═╝╚═╝     ╚═╝   ╚═╝       ╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝╚══════╝
+
 	-- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
 	"tpope/vim-sleuth", -- Detect tabstop and shiftwidth automatically
 
@@ -151,27 +189,17 @@ require("lazy").setup({
 	--
 	--  This is equivalent to:
 	--    require('Comment').setup({})
-	{
-		"dstein64/nvim-scrollview",
-		opts = {
-			signs_on_startup = { "all" },
-			diagnostics_severities = { vim.diagnostic.severity.ERROR },
-		},
-	},
-	{ "lambdalisue/vim-suda" },
+
 	{ "nvim-lua/popup.nvim" },
+
 	{ "nvim-telescope/telescope-media-files.nvim" },
+
 	{
 		"nvim-telescope/telescope-file-browser.nvim",
 		dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
 	},
-	{ "xiyaowong/transparent.nvim" },
-	{ "ThePrimeagen/vim-be-good" },
-	-- "gc" to comment visual regions/lines
-	{ "numToStr/Comment.nvim", opts = {} },
-	{ "voldikss/vim-floaterm" },
+
 	-- lazy.nvim
-	{ "mikavilpas/yazi.nvim", opts = {} },
 	-- Here is a more advanced example where we pass configuration
 	-- options to `gitsigns.nvim`. This is equivalent to the following Lua:
 	--    require('gitsigns').setup({ ... })
