@@ -145,7 +145,7 @@ while IFS= read -r line; do
         echo "Installing package: $package"
         install_package "$package"
     fi
-done << $($TEMP_DIR/pkgs.install |cat)
+done << cat "$TEMP_DIR"/pkgs.install
 
 update_dotfiles
 echo "Dotfiles update complete."
