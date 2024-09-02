@@ -1,3 +1,4 @@
 toilet[paru/yay/pacman][dnf]
 neovim[paru/yay/pacman][dnf]
-fish[paru/yay/pacman][dnf]
+fish[paru/yay/pacman][dnf]->chsh -s $(which fish)
+fzf[paru/yay/pacman][dnf]
