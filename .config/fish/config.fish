@@ -10,7 +10,7 @@ if test -n "$SSH_CLIENT" -o -n "$SSH_TTY"
     printf "%s" $ORANGE
     toilet -d /usr/share/figlet/fonts -f 3d "ssh connection" -t -F border -SWk
     else
-    fastfetch
+    #fastfetch
 end
 end
 function clear_fastfetch
