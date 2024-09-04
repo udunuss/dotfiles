@@ -29,6 +29,7 @@ alias la="ls -a"
 alias lla="ls -la"
 alias lt="ls --tree"
 alias clear clear_fastfetch
+alias emacs="emacs -nw"
 # Handy change dir shortcuts
 abbr .. 'cd ..'
 abbr ... 'cd ../..'
