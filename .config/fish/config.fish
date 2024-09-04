@@ -18,7 +18,6 @@ function clear_fastfetch
     print_info
 end
 if status is-interactive
-    #starship init fish | source
     print_info
 end
 
