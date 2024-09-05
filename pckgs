@@ -26,4 +26,4 @@ sudo sed -i 's/#WaylandEnable=false/WaylandEnable=true/g' /etc/gdm/custom.conf
 
 #enable some nvidia services
 sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
-#Note: Add "nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1" kernel parameters if you want gdm to show wayland options.
+#Note: Add "nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1" kernel parameters if gdm does not show wayland options.
