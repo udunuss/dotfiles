@@ -10,7 +10,6 @@ fi
 
 paru --sudoloop --needed --noconfirm -S wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex \
 neovim firefox qbittorrent steam \
-amneziawg-go \
 hyprland hyprpaper hyprlock xdg-desktop-portal-hyprland waybar \
 && \
 sudo systemctl enable keyd bluetooth && \
