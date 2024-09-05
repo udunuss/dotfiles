@@ -13,5 +13,3 @@ else
 fi
 #kgx to kitty
 sudo rm -rf /usr/bin/kgx && sudo ln -sf /usr/bin/kitty /usr/bin/kgx
-#install paperwm
-(git clone https://github.com/paperwm/PaperWM && cd PaperWM && ./install.sh)
