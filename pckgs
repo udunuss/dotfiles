@@ -17,10 +17,14 @@ else
 fi
 #kgx to kitty
 sudo rm -rf /usr/bin/kgx && sudo ln -sf /usr/bin/kitty /usr/bin/kgx
+
 #nautilus open any terminal here
 paru --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
+gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal kitty
+
 #set default file manager
 xdg-mime default org.gnome.Nautilus.desktop inode/directory
+
 #gdm enable wayland
 sudo sed -i 's/#WaylandEnable=false/WaylandEnable=true/g' /etc/gdm/custom.conf
 
