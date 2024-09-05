@@ -1,5 +1,5 @@
 #! /bin/bash
-sudo pacman --needed --noconfirm -S bluez bluez-tools keyd neovim firefox git base-devel wget fzf bat qbittorrent steam \
+sudo pacman --needed --noconfirm -S sed bluez bluez-tools keyd neovim firefox git base-devel wget fzf bat qbittorrent steam \
 hyprland hyprpaper hyprlock xdg-desktop-portal-hyprland waybar \
 && \
 sudo systemctl enable keyd bluetooth && \
