@@ -23,3 +23,7 @@ paru --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
 xdg-mime default org.gnome.Nautilus.desktop inode/directory
 #gdm enable wayland
 sudo sed -i 's/#WaylandEnable=false/WaylandEnable=true/g' /etc/gdm/custom.conf
+
+#some nvidia services
+systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
+#Note: Add "nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1" kernel parameters if you want gdm to show wayland options.
