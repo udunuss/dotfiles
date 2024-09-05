@@ -8,7 +8,7 @@ else
     echo "paru is already installed"
 fi
 
-paru --sudoloop --needed --noconfirm -S wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex \
+paru --sudoloop --needed --noconfirm -S xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex \
 neovim firefox qbittorrent steam \
 hyprland hyprpaper hyprlock xdg-desktop-portal-hyprland waybar \
 && \
