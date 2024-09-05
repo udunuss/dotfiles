@@ -10,7 +10,6 @@ else
     echo "paru is already installed"
 fi
 #install paperwm
-
 (git clone https://github.com/paperwm/PaperWM && cd PaperWM && ./install.sh)
 #install doom emacs
 git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
