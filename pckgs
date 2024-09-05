@@ -1,5 +1,5 @@
 #! /bin/bash
-sudo pacman --needed --noconfirm -S wl-clipboard sed bluez bluez-tools keyd git base-devel wget fzf bat \
+sudo pacman --needed --noconfirm -S wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat \
 neovim firefox qbittorrent steam \
 hyprland hyprpaper hyprlock xdg-desktop-portal-hyprland waybar \
 && \
