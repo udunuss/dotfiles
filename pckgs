@@ -14,4 +14,4 @@ fi
 (git clone https://github.com/paperwm/PaperWM && cd PaperWM && ./install.sh)
 #install doom emacs
 git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
-~/.config/emacs/bin/doom install
+yes | ~/.config/emacs/bin/doom install
