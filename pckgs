@@ -1,0 +1,14 @@
+#! /bin/bash
+sudo pacman --needed --noconfirm -S bluez bluez-tools keyd neovim firefox git base-devel wget fzf bat qbittorrent steam && \
+sudo systemctl enable keyd bluetooth && \
+sudo systemctl start keyd bluetooth
+if ! command -v paru &> /dev/null
+then
+    echo "paru is not installed. Installing paru..."
+    (git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si)
+else
+    echo "paru is already installed"
+fi
+#install paperwm
+
+(git clone https://github.com/paperwm/PaperWM && cd PaperWM && ./install.sh)
