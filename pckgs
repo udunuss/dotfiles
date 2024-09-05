@@ -7,8 +7,9 @@ then
 else
     echo "paru is already installed"
 fi
-
-sudo pacman --needed --noconfirm -S xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex \
+sudo pacman --noconfirm -Syu
+paru --sudoloop --noconfirm -Syu
+paru --sudoloop --needed --noconfirm -S xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex \
 neovim firefox qbittorrent steam \
 hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome
 sudo systemctl enable keyd bluetooth && \
