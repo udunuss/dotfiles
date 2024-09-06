@@ -28,7 +28,8 @@
 		"tray",
 		"clock#date",
 		"custom/arrow1",
-		"clock#time"
+		"clock#time",
+		"custom/power"
 	],
 
 	// Modules
@@ -156,7 +157,12 @@
 		"icon-size": 18
 		//"spacing": 10
 	},
+	"custom/power": {
+		"format": "⏻",
+		"tooltip": false,
+		"on-click": "~/.config/hypr/wofi-power.sh"
 
+	},
 	"custom/arrow1": {
 		"format": "",
 		"tooltip": false

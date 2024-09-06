@@ -66,6 +66,7 @@
 	font-size: 10pt;
 	/*font-weight: bold;*/ }
 /* Each module */
+#custom-power,
 #battery,
 #clock,
 #cpu,
@@ -191,7 +192,10 @@
 #tray {
 	background: @date;
 }
-
+#custom-power {
+	background: @date;
+	color: @white;
+}
 #clock.date {
 	background: @date;
 	color: @white;
