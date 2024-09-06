@@ -1,5 +1,5 @@
 for sync.
-
+Wallpapers taken from [kirokaze](https://www.deviantart.com/kirokaze) and waybar config from [mxkrsv](https://github.com/mxkrsv/dotfiles/tree/master)
 ## Usage
 ### Files
 ```
