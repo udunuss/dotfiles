@@ -1,11 +1,11 @@
 for sync.
 
-### Usage
-## Files
+## Usage
+### Files
 ```
 wget -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/getdotfiles | /bin/bash
 ```
-## Packages
+### Packages
 ```
 wget -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/pkgs | /bin/bash
 ```
