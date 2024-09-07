@@ -7,18 +7,22 @@ then
 else
     echo "paru is already installed"
 fi
-#install rust
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
 
 
 sudo pacman --noconfirm -Syu
 paru --sudoloop --noconfirm -Syu
-paru --sudoloop --needed --noconfirm -S xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex \
+paru --sudoloop --needed --noconfirm -S xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex fish \
 neovim firefox qbittorrent steam \
 hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome \
 networkmanager network-manager-applet
 sudo systemctl enable keyd bluetooth && \
 sudo systemctl start keyd bluetooth
+
+#install rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+echo '. "$HOME/.cargo/env"' | /bin/bash
+echo 'source "$HOME/.cargo/env"' | fish
 
 
 #install fonts
