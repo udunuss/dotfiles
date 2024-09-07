@@ -205,61 +205,14 @@
 	color: @black;
 }
 
+
 #custom-arrow1 {
-	font-size: 18pt;
-	color: @time;
-	background: @date;
-}
-
-#custom-arrow2 {
-	font-size: 18pt;
-	color: @date;
-	background: @layout;
-}
-
-#custom-arrow3 {
-	font-size: 18pt;
-	color: @layout;
-	background: @battery;
-}
-
-#custom-arrow4 {
-	font-size: 18pt;
-	color: @battery;
-	background: @temp;
-}
-
-#custom-arrow5 {
-	font-size: 18pt;
-	color: @temp;
-	background: @cpu;
-}
-
-#custom-arrow6 {
-	font-size: 18pt;
-	color: @cpu;
-	background: @memory;
-}
-
-#custom-arrow7 {
-	font-size: 18pt;
-	color: @memory;
-	background: @network;
-}
-
-#custom-arrow8 {
-	font-size: 18pt;
-	color: @network;
-	background: @sound;
-}
-
-#custom-arrow9 {
 	font-size: 18pt;
 	color: @sound;
 	background: transparent;
 }
 
-#custom-arrow10 {
+#custom-arrow2 {
 	font-size: 18pt;
 	color: @unfocused;
 	background: transparent;
