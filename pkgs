@@ -19,6 +19,9 @@ networkmanager network-manager-applet
 sudo systemctl enable keyd bluetooth && \
 sudo systemctl start keyd bluetooth
 
+#make fish default
+chsh -s $(which fish)
+
 #install rust
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 echo '. "$HOME/.cargo/env"' | /bin/bash
