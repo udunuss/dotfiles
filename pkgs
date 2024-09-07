@@ -7,6 +7,10 @@ then
 else
     echo "paru is already installed"
 fi
+#install rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+
 sudo pacman --noconfirm -Syu
 paru --sudoloop --noconfirm -Syu
 paru --sudoloop --needed --noconfirm -S xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex \
