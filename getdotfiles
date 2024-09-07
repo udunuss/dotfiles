@@ -42,7 +42,10 @@ update_dotfiles() {
             continue
         fi
         find "$TEMP_DIR/$from" -type f | while read -r src_file; do
-
+            if [[ $src_file == *.sh ]]; then
+                sudo chmod +x "$src_file"
+                echo "Executable permission granted for the $src_file"
+            fi
             local rel_path="${src_file#$TEMP_DIR/$from/}"
             local dest_file="$to/$rel_path"
             local dest_dir=$(dirname "$dest_file")
@@ -52,15 +55,10 @@ update_dotfiles() {
                     sudo mkdir -p "$dest_dir"
                 fi
             fi
-            echo "$dest_file"
             if [ ! -f "$dest_file" ] || ! cmp -s "$src_file" "$dest_file"; then
                 if ! cp "$src_file" "$dest_file" 2>/dev/null; then
                     echo "Sudo required to update file: $dest_file"
                     sudo cp "$src_file" "$dest_file"
-                if [[ $dest_file == *.sh ]]; then
-                    sudo chmod +x "$dest_file"
-                    echo "Executable permission granted for the $dest_file"
-                fi
                 fi
                 echo "Updated: $dest_file"
             else
