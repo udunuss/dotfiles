@@ -160,7 +160,7 @@
 	"custom/power": {
 		"format": "⏻",
 		"tooltip": false,
-		"on-click": "~/.config/hypr/wofi-power.sh"
+		"on-click": "~/.config/wofi/powermenu/powermenu.sh"
 
 	},
 	"custom/arrow1": {
