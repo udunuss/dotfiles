@@ -94,7 +94,7 @@
 			"warning": 70,
 			"critical": 90
 		},
-		"on-click": "hyprctl dispatch exec [floating] 'kitty --config \"background_opacity 1\" --config \"confirm_os_window_close 0\" -e bash -c \"btop\"'",
+		"on-click": "kitty --class=\"floating\" --config \"background_opacity 1\" --config \"confirm_os_window_close 0\" -e bash -c \"btop\"",
 		"tooltip": false
 	},
 
