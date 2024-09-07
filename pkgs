@@ -14,7 +14,7 @@ sudo pacman --noconfirm -Syu
 paru --sudoloop --noconfirm -Syu
 paru --sudoloop --needed --noconfirm -S btop xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex fish \
 neovim firefox qbittorrent steam \
-hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome \
+hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp \
 networkmanager network-manager-applet
 sudo systemctl enable keyd bluetooth && \
 sudo systemctl start keyd bluetooth
