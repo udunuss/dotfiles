@@ -156,6 +156,8 @@
 	"custom/weather": {
 		"format": "{}",
 		"exec": "wget -q -O - 'https://wttr.in/?format=%t%c' | sed 's/+//g; s/C/C /g; s/ //g'",
+		"tooltip": true,
+		"on-click":"weather=$(wget -q -O - https://wttr.in/ );kitty --class=\"floating\" --override background_opacity=0.9 --override font_size=10 --title=\"Weather Information\" bash -c \"echo '$weather'; echo -e '\n\nPress any key to close this window.'; read -n 1\"",	
 		"inteval": 3600,
 	},
 

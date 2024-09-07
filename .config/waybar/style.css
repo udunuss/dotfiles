@@ -194,15 +194,12 @@
 #tray {
 	background: @date;
 }
-#custom-power {
-	background: @date;
-	color: @white;
-}
 #clock.date {
 	background: @date;
 	color: @white;
 }
 
+#custom-power,
 #clock.time {
 	background: @time;
 	color: @black;
