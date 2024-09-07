@@ -60,7 +60,7 @@
 
 /* The whole bar */
 #waybar {
-	background: rgba(40, 40, 40, 0.8784313725); /* #282828e0 */
+	background: rgba(40, 40, 40, 0.5); /* #282828e0 */
 	color: @white;
 	font-family: MesloLGM Nerd Font, Siji;
 	font-size: 10pt;
