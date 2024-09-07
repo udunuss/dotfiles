@@ -19,7 +19,7 @@
 		"custom/arrow6",
 		"cpu",
 		"custom/arrow5",
-		"temperature",
+		"custom/weather",
 		"custom/arrow4",
 		"battery",
 		"custom/arrow3",
@@ -152,6 +152,11 @@
 			""
 		],
 		"tooltip": false
+	},
+	"custom/weather": {
+		"format": "{}",
+		"exec": "wget -q -O - 'https://wttr.in/?format=%t%c' | sed 's/+//g; s/C/C /g; s/ //g'",
+		"inteval": 3600,
 	},
 
 	"tray": {

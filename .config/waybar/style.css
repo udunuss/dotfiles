@@ -76,6 +76,7 @@
 #network,
 #pulseaudio,
 #temperature,
+#custom-weather,
 #tray,
 #backlight,
 #idle_inhibitor,
@@ -174,7 +175,8 @@
 	color: @white;
 }
 
-#temperature {
+#temperature,
+#custom-weather {
 	background: @temp;
 	color: @black;
 }
