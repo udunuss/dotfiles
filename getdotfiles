@@ -55,6 +55,10 @@ update_dotfiles() {
                 if ! cp "$src_file" "$dest_file" 2>/dev/null; then
                     echo "Sudo required to update file: $dest_file"
                     sudo cp "$src_file" "$dest_file"
+                    if [[ $dest_file == *.txt ]]; then
+                        sudo chmod +x "$dest_file"
+                        echo "Executable permission granted for ${dest_file}"
+                    fi
                 fi
                 echo "Updated: $dest_file"
             else
