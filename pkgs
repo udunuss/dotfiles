@@ -36,7 +36,8 @@ ttf-jetbrains-mono
 
 
 #kgx to kitty
-sudo rm -rf /usr/bin/kgx && sudo ln -sf /usr/bin/kitty /usr/bin/kgx
+sudo rm -rf /usr/bin/kgx
+sudo ln -sf /usr/bin/kitty /usr/bin/kgx
 
 #nautilus open any terminal here
 paru --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
