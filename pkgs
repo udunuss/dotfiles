@@ -9,6 +9,7 @@ else
 fi
 
 if command -v wezterm >/dev/null 2>&1; then
+else
 sudo rm -rf /usr/share/terminfo/w/wezterm
 fi
 
