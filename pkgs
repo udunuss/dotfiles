@@ -8,7 +8,9 @@ else
     echo "paru is already installed"
 fi
 
-
+if command -v wezterm >/dev/null 2>&1; then
+sudo rm -rf /usr/share/terminfo/w/wezterm
+fi
 
 sudo pacman --noconfirm -Syu
 paru --sudoloop --noconfirm -Syu
