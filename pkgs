@@ -13,7 +13,7 @@ fi
 sudo pacman --noconfirm -Syu
 paru --sudoloop --noconfirm -Syu
 paru --sudoloop --needed --noconfirm -S btop xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex fish \
-neovim firefox qbittorrent steam \
+neovim firefox qbittorrent steam wezterm-git\
 hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp \
 networkmanager network-manager-applet
 sudo systemctl enable keyd bluetooth && \
@@ -23,9 +23,14 @@ sudo systemctl start keyd bluetooth
 chsh -s $(which fish)
 
 #install rust
+# Check if Rust is already installed
+if command -v rustc >/dev/null 2>&1 && command -v cargo >/dev/null 2>&1; then
+echo "Rust is already installed."
+else
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 echo '. "$HOME/.cargo/env"' | /bin/bash
 echo 'source "$HOME/.cargo/env"' | fish
+fi
 
 
 #install fonts
@@ -35,9 +40,9 @@ ttf-font-awesome-5 \
 ttf-jetbrains-mono
 
 
-#kgx to kitty
+#kgx to wezterm
 sudo rm -rf /usr/bin/kgx
-sudo ln -sf /usr/bin/kitty /usr/bin/kgx
+sudo ln -sf /usr/bin/wezterm /usr/bin/kgx
 
 #nautilus open any terminal here
 paru --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
