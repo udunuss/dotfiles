@@ -9,6 +9,7 @@ else
 fi
 
 if command -v wezterm >/dev/null 2>&1; then
+echo "wezterm is already installed."
 else
 sudo rm -rf /usr/share/terminfo/w/wezterm
 fi
