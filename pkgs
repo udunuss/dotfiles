@@ -22,7 +22,7 @@ sudo systemctl enable keyd bluetooth && \
 sudo systemctl start keyd bluetooth
 
 #make fish default
-chsh -s $(which fish)
+sudo chsh -s $(which fish)
 
 #install rust
 # Check if Rust is already installed
