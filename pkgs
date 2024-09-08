@@ -29,7 +29,7 @@ echo "Rust is already installed."
 else
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 echo '. "$HOME/.cargo/env"' | /bin/bash
-echo 'source "$HOME/.cargo/env"' | fish
+echo 'source "$HOME/.cargo/env.fish"' | fish
 fi
 
 
