@@ -11,7 +11,7 @@ get_applications() {
         if [ -n "$name" ]; then
             echo -e "$name${DIM}|$file${RESET}"
         fi
-    done < <(find /usr/share/applications -name "*.desktop" -print0)
+    done < <(find /usr/share/applications ~/.local/share/applications -name "*.desktop" -print0)
 }
 
 # Function to launch the selected application
