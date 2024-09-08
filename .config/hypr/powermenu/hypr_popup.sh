@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-    echo 'Please add a script path'
+    echo 'please add a script path'
     exit 0
 fi
 # Function to get the focused window class
