@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Path to your power menu script
-POWER_MENU_SCRIPT="$HOME/fzfpowermenu.sh"
-
+if [[ $# -eq 0 ]] ; then
+    echo 'please add a script path'
+    exit 0
+fi
 # Function to get the focused window class
 get_focused_window_class() {
     hyprctl activewindow -j | jq -r .class
