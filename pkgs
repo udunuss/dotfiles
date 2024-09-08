@@ -50,7 +50,7 @@ sudo ln -sf /usr/bin/wezterm /usr/bin/kgx
 
 #nautilus open any terminal here
 paru --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
-gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal kitty
+gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
 
 #set default file manager
 xdg-mime default org.gnome.Nautilus.desktop inode/directory
