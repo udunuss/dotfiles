@@ -159,7 +159,7 @@
 	"custom/power": {
 		"format": "⏻",
 		"tooltip": false,
-		"on-click": "~/.config/hypr/hypr_popup.sh ~/.config/hypr/fzfpowermenu.sh"
+		"on-click": "~/.config/hypr/popups/powermenu.sh"
 
 	},
 
