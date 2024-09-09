@@ -31,6 +31,7 @@ launch_application() {
 
 # Main script
 selected_app=$(get_applications | sort | fzf --ansi \
+    --cycle --multi --bind 'tab:toggle-down,change:first' \
     --prompt="Select an application: " \
     --layout=reverse \
     --preview "echo -e \"${RED}\$(echo {} | cut -c1-1 | figlet -f 3d)${RESET}\" " \
