@@ -63,7 +63,7 @@ done | fzf --ansi \
     --prompt="Select an application: " \
     --layout=reverse \
     --preview "echo -e \"${RED}\$(echo {} | cut -d'|' -f2 | cut -c1-1 | figlet -f 3d)${RESET}\" " \
-    --preview-window=right:10,border-left)
+    --preview-window=right:11,border-left)
 
 if [ -n "$selected_app" ]; then
     launch_application "$selected_app"
