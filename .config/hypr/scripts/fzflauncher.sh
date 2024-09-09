@@ -3,7 +3,7 @@
 # ANSI color codes
 RESET="\e[0m"
 DIM="\e[90m"
-RED="\e[31m"
+RED="\e[1;33m"
 
 # File to store app launch frequencies
 LAUNCH_LOG="$HOME/.app-launch-frequency"
