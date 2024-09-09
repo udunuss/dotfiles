@@ -25,14 +25,15 @@ increment_frequency() {
     fi
 }
 
-# Function to get list of applications with frequency
+# Function to get list of applications without ANSI codes for sorting
 get_applications() {
     while IFS= read -r -d '' file; do
         name=$(awk -F= '/^Name=/{print $2; exit}' "$file")
 
         if [ -n "$name" ]; then
             freq=$(get_frequency "$name")
-            echo -e "$freq|$name${DIM}|$file|${RESET}"
+            # Output frequency and app info without ANSI codes for sorting
+            echo -e "$freq|$name|$file"
         fi
     done < <(find /usr/share/applications ~/.local/share/applications -name "*.desktop" -print0)
 }
@@ -54,7 +55,10 @@ launch_application() {
 }
 
 # Main script
-selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | fzf --ansi \
+selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read -r freq name file; do
+    # Add ANSI escape codes (dimming the frequency)
+    echo -e "${DIM}$freq|${RESET}$name${DIM}|$file${RESET}"
+done | fzf --ansi \
     --cycle --multi --bind 'tab:toggle-down,change:first' \
     --prompt="Select an application: " \
     --layout=reverse \
