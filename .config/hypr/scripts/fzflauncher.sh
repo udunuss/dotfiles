@@ -72,6 +72,7 @@ selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read 
     # Add ANSI escape codes (dimming the frequency)
     echo -e "${DIM}$freq|${RESET}$name${DIM}|$file${RESET}"
 done | fzf --ansi \
+     --nth=1 \
     --cycle --multi --bind 'tab:toggle-down,change:first' \
     --prompt="Select an application: " \
     --layout=reverse \
