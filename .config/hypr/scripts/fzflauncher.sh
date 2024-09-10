@@ -68,12 +68,12 @@ launch_application() {
 # Main script
 selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read -r freq name file; do
     # Add ANSI escape codes (dimming the frequency)
-    echo -e "${DIM}[$freq]${RESET}$name${DIM} $file${RESET}"
+    echo -e "${DIM}$freq|${RESET}$name${DIM}|$file${RESET}"
 done | fzf --ansi \
     --cycle --multi --bind 'tab:toggle-down,change:first' \
     --prompt="Select an application: " \
     --layout=reverse \
-    --preview "echo -e \"${RED}\$(echo {} | cut -d']' -f2 | cut -c1-1 | figlet -f 3d)${RESET}\" " \
+    --preview "echo -e \"${RED}\$(echo {} | cut -d'|' -f2 | cut -c1-1 | figlet -f 3d)${RESET}\" " \
     --preview-window=right:11,border-left)
 
 if [ -n "$selected_app" ]; then
