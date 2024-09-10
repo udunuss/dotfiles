@@ -28,9 +28,10 @@ increment_frequency() {
 # Function to get list of applications without ANSI codes for sorting
 get_applications() {
     app_dirs=()
-    for dir in $(echo "$XDG_DATA_DIRS" | tr ':' '\n'); do
+    for dir in $(echo "$XDG_DATA_DIRS" | tr ':' '\n' | tr -s /); do
         if [ -d  "$dir/applications" ]; then
-            app_dirs+=("$dir/applications")
+            clean_dir=$(echo "$dir/applications" | tr -s /)
+            app_dirs+=($clean_dir)
         fi
     done
      local_app_directory=("$HOME/.local/share/applications")
