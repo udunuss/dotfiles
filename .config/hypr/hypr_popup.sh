@@ -11,10 +11,14 @@ get_focused_window_class() {
 
 # Function to get current focus mode
 get_focus_mode() {
-    hyprctl getoption input:follow_mouse -j | jq -r .int
+    #hyprctl getoption input:follow_mouse -j | jq -r .int
+
+    grep "follow_mouse" ~/.config/hypr/hyprland.conf | cut -d '=' -f 2 | cut -d '#' -f 1 | tr -d ' '
 }
 get_s_o_f() {
-    hyprctl getoption input:float_switch_override_focus -j | jq -r .int
+    #hyprctl getoption input:float_switch_override_focus -j | jq -r .int
+
+    grep "float_switch_override_focus" ~/.config/hypr/hyprland.conf | cut -d '=' -f 2 | cut -d '#' -f 1 | tr -d ' '
 }
 # Save the current focus mode
 ORIGINAL_FOCUS_MODE=$(get_focus_mode)
