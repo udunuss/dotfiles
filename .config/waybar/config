@@ -149,7 +149,7 @@
 		"exec": "wget -q -O - 'https://wttr.in/?format=%t%c' | sed 's/+//g; s/C/C /g; s/ //g'",
 		"tooltip": true,
 		"on-click":"fontsize=12;weather=$(wget -q -O - https://wttr.in/ );wezterm --config font_size=10 --config initial_rows=45 --config initial_cols=130 start --class floating bash -c \"echo '$weather'; echo -e '\n\nPress any key to close this window.'; read -n 1\"",	
-		"inteval": 3600,
+		"interval": 180,
 	},
 
 	"tray": {
