@@ -6,7 +6,7 @@ if [[ $# -eq 0 ]] ; then
 fi
 # Function to get the focused window class
 get_focused_window_class() {
-    hyprctl activewindow -j | jq -r .class
+    hyprctl activewindow -j
 }
 
 # Function to get current focus mode
