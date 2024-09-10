@@ -10,4 +10,4 @@ wget -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/getdotfiles | 
 wget -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/pkgs | /bin/bash
 ```
 
-![image](https://github.com/user-attachments/assets/ddb528df-3c7c-4736-a0c1-1eb891f98050)
+![image](https://github.com/user-attachments/assets/f601a3a6-155e-4309-ad97-e03a103add53)
