@@ -1,5 +1,6 @@
 #!/bin/bash
-
+title="Power Menu"
+echo -e '\033k'$title'\033\\'
 # Define the menu options
 options=("󰍃 Logout" "󰒲 Suspend" "󰑓 Reboot" "󰐥 Shutdown") 
 

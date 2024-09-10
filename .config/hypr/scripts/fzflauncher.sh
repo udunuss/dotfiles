@@ -1,5 +1,7 @@
 
 #!/bin/bash
+title="Launcher"
+echo -e '\033k'$title'\033\\'
 # ANSI color codes
 RESET="\e[0m"
 DIM="\e[90m"
