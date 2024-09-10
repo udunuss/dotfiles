@@ -27,6 +27,16 @@ increment_frequency() {
 
 # Function to get list of applications without ANSI codes for sorting
 get_applications() {
+    app_dirs=()
+    for dir in $(echo "$XDG_DATA_DIRS" | tr ':' '\n'); do
+        if [ -d  "$dir/applications" ]; then
+            app_dirs+=("$dir/applications")
+        fi
+    done
+     local_app_directory=("$HOME/.local/share/applications")
+    if [[ ! " ${app_dirs[@]} " =~ " ${local_app_directory} " ]]; then
+        app_dirs+=("$local_app_directory")
+    fi
     while IFS= read -r -d '' file; do
         name=$(awk -F= '/^Name=/{print $2; exit}' "$file")
 
@@ -35,7 +45,7 @@ get_applications() {
             # Output frequency and app info without ANSI codes for sorting
             echo -e "$freq|$name|$file"
         fi
-    done < <(find /usr/share/applications ~/.local/share/applications -name "*.desktop" -print0)
+    done < <(find "${app_dirs[@]}" -name "*.desktop" -print0)
 }
 
 # Function to launch the selected application
