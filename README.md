@@ -12,4 +12,4 @@ wget -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/pkgs | /bin/ba
 
 ![image](https://github.com/user-attachments/assets/af158cb7-30b5-4503-b40e-924972769440)
 
-terminal fzf based launcher and power menu
+terminal based fzf launcher and power menu
