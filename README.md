@@ -1,4 +1,4 @@
-for sync.
+for personal sync.
 ##### Wallpapers taken from [kirokaze](https://www.deviantart.com/kirokaze) and modified waybar config from [mxkrsv](https://github.com/mxkrsv/dotfiles/tree/master)
 ## Usage
 ### Files
