@@ -56,7 +56,7 @@ launch_application() {
     local app_name=$(echo "$1" | cut -d'|' -f2)
     local desktop_file=$(echo "$1" | cut -d'|' -f3)
     if [ -f "$desktop_file" ]; then
-        nohup dex "$desktop_file"
+        nohup dex "$desktop_file" &
         if [ $? -ne 0 ]; then
             notify-send "Failed to launch $app_name"
         else
