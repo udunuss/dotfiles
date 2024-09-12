@@ -9,7 +9,7 @@ echo -ne "\033]0;${title}\007"
 # ANSI color codes
 RESET="\e[0m"
 DIM="\e[90m"
-RED="\e[1;33m"
+COLOR="\e[1;33m"
 
 # File to store app launch frequencies
 LAUNCH_LOG="$HOME/.app-launch-frequency"
@@ -84,7 +84,7 @@ done | fzf --ansi \
      --cycle --bind 'tab:toggle+down' \
      --prompt="Select an application: " \
      --layout=reverse \
-     --preview "echo -e \"${RED}\$(echo {} | cut -d'|' -f2 | cut -c1-1 | figlet -f 3d)${RESET}\" " \
+     --preview "echo -e \"${COLOR}\$(echo {} | cut -d'|' -f2 | cut -c1-1 | figlet -f 3d)${RESET}\" " \
      --preview-window=right:11,border-left)
 
 if [ -n "${selected_app:-}" ]; then
