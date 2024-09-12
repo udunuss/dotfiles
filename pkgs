@@ -20,7 +20,8 @@ paru --sudoloop --needed --noconfirm -S figlet mpv jq btop xorg-xkill wl-clipboa
 neovim firefox qbittorrent steam wezterm-git \
 hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl \
 networkmanager network-manager-applet \
-drawing
+drawing \
+godot
 sudo usermod -aG keyd $(whoami)
 sudo systemctl enable keyd bluetooth && \
 sudo systemctl start keyd bluetooth
