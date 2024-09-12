@@ -36,7 +36,10 @@ update_dotfiles() {
     for mapping in "${from_to[@]}"; do
         local from=$(echo "$mapping" | cut -d ";" -f 1)
         local to=$(echo "$mapping" | cut -d ";" -f 2)
-        to="$to/$from"
+        
+        if [[ "$to" != "home" ]]; then
+            to="$to/$from"
+        fi
         if [ ! -d "$TEMP_DIR/$from" ]; then
             echo "Error: Source directory $from not found in the repository" >&2
             continue
