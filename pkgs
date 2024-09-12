@@ -1,65 +1,135 @@
-#! /bin/bash
-#install paru
-if ! command -v paru &> /dev/null
-then
-    echo "paru is not installed. Installing paru..."
-    (git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si)
-else
-    echo "paru is already installed"
-fi
+#!/bin/bash
 
-if command -v wezterm >/dev/null 2>&1; then
-echo "wezterm is already installed."
-else
-sudo rm -rf /usr/share/terminfo/w/wezterm
-fi
+set -euo pipefail
 
-sudo pacman --noconfirm -Syu
-paru --sudoloop --noconfirm -Syu
-paru --sudoloop --needed --noconfirm -S figlet mpv jq btop xorg-xkill wl-clipboard sed bluez bluez-tools blueman keyd git base-devel wget fzf bat dex sed fish \
-neovim firefox qbittorrent steam wezterm-git \
-hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl \
-networkmanager network-manager-applet \
-drawing \
-godot
-sudo usermod -aG keyd $(whoami)
-sudo systemctl enable keyd bluetooth && \
-sudo systemctl start keyd bluetooth
+# Variables
+AUR_HELPER="paru"
+RUST_INSTALLER_URL="https://sh.rustup.rs"
+WEZTERM_TERMINFO="/usr/share/terminfo/w/wezterm"
+KGX_BINARY="/usr/bin/kgx"
+WEZTERM_BINARY="/usr/bin/wezterm"
 
+# Function to install paru (AUR helper)
+install_paru() {
+    if ! command -v "$AUR_HELPER" &> /dev/null; then
+        echo "$AUR_HELPER is not installed. Installing $AUR_HELPER..."
+        git clone https://aur.archlinux.org/"$AUR_HELPER".git
+        cd "$AUR_HELPER" || exit
+        makepkg -si --noconfirm
+        cd ..
+        rm -rf "$AUR_HELPER"
+    else
+        echo "$AUR_HELPER is already installed."
+    fi
+}
 
+# Function to clean up WezTerm terminfo if necessary
+cleanup_wezterm_terminfo() {
+    if ! command -v wezterm &>/dev/null; then
+        if [ -d "$WEZTERM_TERMINFO" ]; then
+            echo "WezTerm is not installed. Removing terminfo entry..."
+            sudo rm -rf "$WEZTERM_TERMINFO"
+        fi
+    else
+        echo "WezTerm is already installed."
+    fi
+}
 
-#install rust
-# Check if Rust is already installed
-if command -v rustc >/dev/null 2>&1 && command -v cargo >/dev/null 2>&1; then
-echo "Rust is already installed."
-else
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-echo '. "$HOME/.cargo/env"' | /bin/bash
-echo 'source "$HOME/.cargo/env.fish"' | fish
-fi
+# Function to update system packages
+update_system() {
+    echo "Updating system packages..."
+    sudo pacman --noconfirm -Syu
+    "$AUR_HELPER" --sudoloop --noconfirm -Syu
+}
 
+# Function to install packages
+install_packages() {
+    echo "Installing packages..."
+    "$AUR_HELPER" --sudoloop --needed --noconfirm -S \
+        figlet mpv jq btop xorg-xkill wl-clipboard bluez bluez-tools blueman keyd git base-devel wget fzf bat dex fish \
+        neovim firefox qbittorrent steam wezterm-git \
+        hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl \
+        networkmanager network-manager-applet godot
+}
 
-#install fonts
-paru --sudoloop --needed --noconfirm -S  noto-fonts-cjk noto-fonts-emoji noto-fonts ttf-freefont ttf-ms-fonts ttf-linux-libertine ttf-dejavu ttf-inconsolata ttf-ubuntu-font-family \
-nerd-fonts \
-ttf-font-awesome-5 \
-ttf-jetbrains-mono
+# Function to configure services
+configure_services() {
+    echo "Configuring services..."
+    sudo usermod -aG keyd "$(whoami)"
+    sudo systemctl enable --now keyd.service bluetooth.service
+}
 
+# Function to install Rust
+install_rust() {
+    if command -v rustc &>/dev/null && command -v cargo &>/dev/null; then
+        echo "Rust is already installed."
+    else
+        echo "Installing Rust..."
+        curl --proto '=https' --tlsv1.2 -sSf "$RUST_INSTALLER_URL" | sh -s -- -y
+        source "$HOME/.cargo/env"
+        echo 'source "$HOME/.cargo/env"' >> "$HOME/.bashrc"
+        echo 'source "$HOME/.cargo/env.fish"' >> "$HOME/.config/fish/config.fish"
+    fi
+}
 
-#kgx to wezterm
-sudo rm -rf /usr/bin/kgx
-sudo ln -sf /usr/bin/wezterm /usr/bin/kgx
+# Function to install fonts
+install_fonts() {
+    echo "Installing fonts..."
+    "$AUR_HELPER" --sudoloop --needed --noconfirm -S \
+        noto-fonts-cjk noto-fonts-emoji noto-fonts ttf-freefont ttf-ms-fonts ttf-linux-libertine ttf-dejavu \
+        ttf-inconsolata ttf-ubuntu-font-family nerd-fonts ttf-font-awesome-5 ttf-jetbrains-mono
+}
 
-#nautilus open any terminal here
-paru --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
-gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
+# Function to configure WezTerm as default terminal
+configure_wezterm() {
+    echo "Configuring WezTerm as the default terminal for KGX..."
+    if [ -f "$KGX_BINARY" ]; then
+        sudo rm -f "$KGX_BINARY"
+    fi
+    sudo ln -sf "$WEZTERM_BINARY" "$KGX_BINARY"
+}
 
-#set default file manager
-xdg-mime default org.gnome.Nautilus.desktop inode/directory
+# Function to configure Nautilus to open WezTerm
+configure_nautilus() {
+    echo "Configuring Nautilus to open WezTerm..."
+    "$AUR_HELPER" --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
+    gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
+}
 
-#gdm enable wayland
-sudo sed -i 's/#WaylandEnable=false/WaylandEnable=true/g' /etc/gdm/custom.conf
+# Function to set default file manager
+set_default_file_manager() {
+    echo "Setting Nautilus as the default file manager..."
+    xdg-mime default org.gnome.Nautilus.desktop inode/directory
+}
 
-#enable some nvidia services
-sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
-#Note: Add "nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1" kernel parameters if gdm does not show wayland options.
+# Function to enable Wayland in GDM
+enable_wayland_gdm() {
+    echo "Enabling Wayland in GDM..."
+    sudo sed -i 's/#WaylandEnable=false/WaylandEnable=true/g' /etc/gdm/custom.conf
+}
+
+# Function to enable Nvidia services
+enable_nvidia_services() {
+    echo "Enabling Nvidia services..."
+    sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
+    echo "Note: Add 'nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1' to your kernel parameters if GDM does not show Wayland options."
+}
+
+# Main script execution
+main() {
+    install_paru
+    cleanup_wezterm_terminfo
+    update_system
+    install_packages
+    configure_services
+    install_rust
+    install_fonts
+    configure_wezterm
+    configure_nautilus
+    set_default_file_manager
+    enable_wayland_gdm
+    enable_nvidia_services
+    echo "Script execution complete."
+}
+
+main "$@"
