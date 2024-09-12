@@ -5,7 +5,7 @@ set -o pipefail
 username="udunuss"
 branch="main"
 repo="dotfiles"
-from_to=(".config;$HOME" "usr;" "etc;" "home;$HOME")
+from_to=("root;" "home;$HOME")
 
 # GitHub Personal Access Token (PAT)
 # Create a PAT at https://github.com/settings/tokens and set it as an environment variable:
@@ -36,10 +36,7 @@ update_dotfiles() {
     for mapping in "${from_to[@]}"; do
         local from=$(echo "$mapping" | cut -d ";" -f 1)
         local to=$(echo "$mapping" | cut -d ";" -f 2)
-        
-        if [[ "$to" != "home" ]]; then
-            to="$to/$from"
-        fi
+
         if [ ! -d "$TEMP_DIR/$from" ]; then
             echo "Error: Source directory $from not found in the repository" >&2
             continue
