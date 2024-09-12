@@ -5,7 +5,7 @@ set -o pipefail
 username="udunuss"
 branch="main"
 repo="dotfiles"
-from_to=(".config;$HOME" "usr;" "etc;")
+from_to=(".config;$HOME" "usr;" "etc;" "$HOME;$HOME")
 
 # GitHub Personal Access Token (PAT)
 # Create a PAT at https://github.com/settings/tokens and set it as an environment variable:
