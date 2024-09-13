@@ -84,8 +84,7 @@ selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read 
     # Add ANSI escape codes (dimming the frequency)
     printf "${DIM}%s|${RESET}%s${DIM}|%s|%s|%s\n${RESET}" "$freq" "$name" "$categories" "$comments"  "$file"
 done | fzf --ansi \
-     --nth 1 \
-     --algo v1 \
+     --algo=v1 \
      --tiebreak=begin,index \
      --cycle --bind 'tab:toggle+down' \
      --prompt="Select an application: " \
