@@ -10,6 +10,6 @@ wget -q -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/getdotfiles
 wget -q -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/pkgs | /bin/bash
 ```
 
-![image](https://github.com/user-attachments/assets/af158cb7-30b5-4503-b40e-924972769440)
+![image](https://github.com/user-attachments/assets/e607f68e-7f4d-4427-a2d3-a0943277d8c1)
 
 terminal based fzf launcher and power menu
