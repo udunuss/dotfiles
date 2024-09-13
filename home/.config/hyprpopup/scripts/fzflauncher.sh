@@ -51,14 +51,16 @@ get_applications() {
 
     find "${app_dirs[@]}" -name "*.desktop" -print0 | while IFS= read -r -d '' file; do
         local name
+        local categories
+        local comments
         name=$(awk -F= '/^Name=/{print $2; exit}' "$file")
+
         if [ -n "$name" ]; then
             local freq
             freq=$(get_frequency "$name")
-            local categories
             categories=$(awk -F= '/^Categories=/{print $2}' "$file" | tr -d '\n' | tr ';' ',' | sed 's/,$//' | sed 's/ $//' )
-            local comments
             comments=$(awk -F= '/^Comment=/{print $2}' "$file" | tr -d '\n' | sed 's/ $//' )
+
 
             # Output frequency, app name, categories, and desktop file path
             printf "%s\x1F%s\x1F%s\x1F%s\x1F%s\n" "$freq" "$name" "$categories" "$comments" "$file"
@@ -89,7 +91,9 @@ selected_app=$(get_applications | sort -t $'\x1F' -k1,1nr -k2,2 | while IFS=$'\x
     "$freq" "$name" "$categories" "$comments" "$file"
 done | fzf --ansi \
      -d $'\x1F' \
-     --algo=v1 \
+     --no-multi \
+     --no-exact \
+     --algo=v2 \
      --with-nth 2,3,4 \
      --tiebreak=begin,index \
      --cycle --bind 'tab:toggle+down' \
