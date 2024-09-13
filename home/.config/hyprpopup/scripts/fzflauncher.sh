@@ -67,7 +67,7 @@ get_applications() {
 # Function to launch the selected application
 launch_application() {
     local IFS='|'
-    read -r freq app_name categories desktop_file <<< "$1"
+    read -r freq app_name categories comments desktop_file <<< "$1"
     if [ -f "$desktop_file" ]; then
         if (nohup dex "$desktop_file" &); then
             increment_frequency "$app_name"
@@ -80,9 +80,9 @@ launch_application() {
 }
 
 # Main script
-selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read -r freq name categories file; do
+selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read -r freq name categories comments file; do
     # Add ANSI escape codes (dimming the frequency)
-    printf "${DIM}%s|${RESET}%s${DIM}|%s|%s\n${RESET}" "$freq" "$name" "$categories" "$file"
+    printf "${DIM}%s|${RESET}%s${DIM}|%s|%s|%s\n${RESET}" "$freq" "$name" "$categories" "$comments"  "$file"
 done | fzf --ansi \
      --cycle --bind 'tab:toggle+down' \
      --prompt="Select an application: " \
