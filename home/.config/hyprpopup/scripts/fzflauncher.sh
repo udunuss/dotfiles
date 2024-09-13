@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 set -euo pipefail
@@ -54,8 +55,10 @@ get_applications() {
         if [ -n "$name" ]; then
             local freq
             freq=$(get_frequency "$name")
-            # Output frequency and app info without ANSI codes for sorting
-            printf "%s|%s|%s\n" "$freq" "$name" "$file"
+            local categories
+            categories=$(awk -F= '/^Categories=/{print $2}' "$file" | tr -d '\n' | tr ';' ' ' | sed 's/ $//' )
+            # Output frequency, app name, categories, and desktop file path
+            printf "%s|%s|%s|%s\n" "$freq" "$name" "$categories" "$file"
         fi
     done
 }
@@ -63,7 +66,7 @@ get_applications() {
 # Function to launch the selected application
 launch_application() {
     local IFS='|'
-    read -r freq app_name desktop_file <<< "$1"
+    read -r freq app_name categories desktop_file <<< "$1"
     if [ -f "$desktop_file" ]; then
         if (nohup dex "$desktop_file" &); then
             increment_frequency "$app_name"
@@ -76,11 +79,12 @@ launch_application() {
 }
 
 # Main script
-selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read -r freq name file; do
+selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read -r freq name categories file; do
     # Add ANSI escape codes (dimming the frequency)
-    printf "${DIM}%s|${RESET}%s${DIM}|%s${RESET}\n" "$freq" "$name" "$file"
+    printf "${DIM}%s|${RESET}%s${DIM}|%s|%s${RESET}\n" "$freq" "$name" "$categories" "$file"
 done | fzf --ansi \
      --nth=1 \
+     --with-nth=1,2,3 \
      --cycle --bind 'tab:toggle+down' \
      --prompt="Select an application: " \
      --layout=reverse \
@@ -92,3 +96,4 @@ if [ -n "${selected_app:-}" ]; then
 else
     echo "No application selected."
 fi
+
