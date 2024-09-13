@@ -115,6 +115,7 @@ enable_nvidia_services() {
     echo "Note: Add 'nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1' to your kernel parameters if GDM does not show Wayland options."
 }
 # Lorien is a infinite canvas application.
+
 download_and_setup_lorien() {
     # Variables
     REPO="mbrlabs/Lorien"
@@ -132,8 +133,12 @@ download_and_setup_lorien() {
     LATEST_RELEASE_URL=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.assets[] | select(.name | endswith("Linux.tar.xz")) | .browser_download_url')
 
     # Create install directory, download, and extract
-    mkdir -p "$INSTALL_DIR" && wget -O "$INSTALL_DIR/Lorien_Linux.tar.xz" "$LATEST_RELEASE_URL"
-    tar -xf "$INSTALL_DIR/Lorien_Linux.tar.xz" -C "$INSTALL_DIR" && chmod +x "$EXECUTABLE"
+    mkdir -p "$INSTALL_DIR"
+    wget -O "$INSTALL_DIR/Lorien_Linux.tar.xz" "$LATEST_RELEASE_URL"
+    tar -xf "$INSTALL_DIR/Lorien_Linux.tar.xz" -C "$INSTALL_DIR" --strip-components=1
+
+    # Make the executable runnable
+    chmod +x "$EXECUTABLE"
 
     # Create .desktop file
     cat > "$DESKTOP_FILE" <<EOL
@@ -147,6 +152,7 @@ EOL
 
     echo "Lorien has been installed and a desktop entry has been created."
 }
+
 
 
 
