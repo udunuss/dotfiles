@@ -59,14 +59,14 @@ get_applications() {
             comments=$(awk -F= '/^Comment=/{print $2}' "$file" | tr -d '\n' | sed 's/ $//' )
 
             # Output frequency, app name, categories, and desktop file path
-            printf "%s|%s|%s|%s|%s\n" "$freq" "$name" "$categories" "$comments" "$file"
+            printf "%s\x1F%s\x1F%s\x1F%s\x1F%s\n" "$freq" "$name" "$categories" "$comments" "$file"
         fi
     done
 }
 
 # Function to launch the selected application
 launch_application() {
-    local IFS='|'
+    local IFS=$'\x1F'
     read -r freq app_name categories comments desktop_file <<< "$1"
     if [ -f "$desktop_file" ]; then
         if (nohup dex "$desktop_file" &); then
@@ -80,17 +80,23 @@ launch_application() {
 }
 
 # Main script
-selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read -r freq name categories comments file; do
-    # Add ANSI escape codes (dimming the frequency)
-    printf "${DIM}%s|${RESET}%s${DIM}|%s|%s|%s\n${RESET}" "$freq" "$name" "$categories" "$comments"  "$file"
+
+selected_app=$(get_applications | sort -t $'\x1F' -k1,1nr -k2,2 | while IFS=$'\x1F' read -r freq name categories comments file; do
+    # Add ANSI escape codes (dimming the frequency), delimiters outside ANSI codes
+    printf "${DIM}%s|${RESET}\x1F%s\x1F${DIM}|%s${RESET}\x1F${DIM}|%s${RESET}\x1F${DIM}%s${RESET}\n" \
+    "$freq" "$name" "$categories" "$comments" "$file"
 done | fzf --ansi \
+     -d $'\x1F' \
      --algo=v1 \
+     --nth 2,3,4 \
+     --with-nth 2,3,4 \
      --tiebreak=begin,index \
      --cycle --bind 'tab:toggle+down' \
      --prompt="Select an application: " \
      --layout=reverse \
-     --preview "echo -e \"${COLOR}\$(echo {} | cut -d'|' -f2 | cut -c1-1 | figlet -f 3d)${RESET}\" " \
+     --preview "echo -e \"${COLOR}\$(echo {} | cut -d $'\x1F' -f2 | cut -c1-1 | figlet -f 3d)${RESET}\" " \
      --preview-window=right:11,border-left)
+
 
 if [ -n "${selected_app:-}" ]; then
     launch_application "$selected_app"
