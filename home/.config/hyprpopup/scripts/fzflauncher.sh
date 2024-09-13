@@ -8,7 +8,9 @@ echo -ne "\033]0;${title}\007"
 
 # ANSI color codes
 RESET="\e[0m"
-DIM="\e[90m"
+DIM="\e[38;5;243m"
+COLOR_ONE="\e[38;5;30m"
+COLOR_TWO="\e[38;5;173m"
 COLOR="\e[1;33m"
 # File to store app launch frequencies
 LAUNCH_LOG="$HOME/.app-launch-frequency"
@@ -83,12 +85,11 @@ launch_application() {
 
 selected_app=$(get_applications | sort -t $'\x1F' -k1,1nr -k2,2 | while IFS=$'\x1F' read -r freq name categories comments file; do
     # Add ANSI escape codes (dimming the frequency), delimiters outside ANSI codes
-    printf "${DIM}%s|${RESET}\x1F%s\x1F${DIM}|%s${RESET}\x1F${DIM}|%s${RESET}\x1F${DIM}%s${RESET}\n" \
+    printf "${DIM}%s${RESET}\x1F%s\x1F${COLOR_ONE}%s${RESET}\x1F${COLOR_TWO}%s${RESET}\x1F${DIM}%s${RESET}\n" \
     "$freq" "$name" "$categories" "$comments" "$file"
 done | fzf --ansi \
      -d $'\x1F' \
      --algo=v1 \
-     --nth 2,3,4 \
      --with-nth 2,3,4 \
      --tiebreak=begin,index \
      --cycle --bind 'tab:toggle+down' \
