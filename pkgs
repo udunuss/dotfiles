@@ -148,7 +148,7 @@ Name=Lorien
 Exec=$EXECUTABLE
 Icon=$INSTALL_DIR/icon.png
 Type=Application
-Categories=Graphics;
+Categories=Drawing;Canvas;Graphics;
 EOL
 cat > "$UNINSTALLER" <<EOL
 [Desktop Entry]
