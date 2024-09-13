@@ -121,6 +121,7 @@ download_and_setup_lorien() {
     REPO="mbrlabs/Lorien"
     INSTALL_DIR="$HOME/.local/share/Lorien"
     DESKTOP_FILE="$HOME/.local/share/applications/lorien.desktop"
+    UNINSTALLER="$HOME/.local/share/applications/lorien-uninstaller.desktop"
     EXECUTABLE="$INSTALL_DIR/Lorien.x86_64"
 
     # Check if Lorien already exists
@@ -149,7 +150,17 @@ Icon=$INSTALL_DIR/icon.png
 Type=Application
 Categories=Graphics;
 EOL
+cat > "$UNINSTALLER" <<EOL
+[Desktop Entry]
+Name=Lorien Uninstaller
+Comment=Uninstall Lorien Application
+Exec=sh -c 'if zenity --question --title="Uninstall Lorien" --text="Are you sure you want to uninstall Lorien?"; then rm -rf "$INSTALL_DIR" "$DESKTOP_FILE" "$UNINSTALLER" && notify-send "Lorien has been uninstalled."; fi'
+Icon=application-x-executable
+Terminal=false
+Type=Application
+Categories=Utility;
 
+EOL
     echo "Lorien has been installed and a desktop entry has been created."
 }
 
