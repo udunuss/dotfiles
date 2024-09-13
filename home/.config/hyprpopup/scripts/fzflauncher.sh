@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 set -euo pipefail
@@ -11,7 +10,6 @@ echo -ne "\033]0;${title}\007"
 RESET="\e[0m"
 DIM="\e[90m"
 COLOR="\e[1;33m"
-
 # File to store app launch frequencies
 LAUNCH_LOG="$HOME/.app-launch-frequency"
 
@@ -56,9 +54,12 @@ get_applications() {
             local freq
             freq=$(get_frequency "$name")
             local categories
-            categories=$(awk -F= '/^Categories=/{print $2}' "$file" | tr -d '\n' | tr ';' ' ' | sed 's/ $//' )
+            categories=$(awk -F= '/^Categories=/{print $2}' "$file" | tr -d '\n' | tr ';' ',' | sed 's/,$//' | sed 's/ $//' )
+            local comments
+            comments=$(awk -F= '/^Comment=/{print $2}' "$file" | tr -d '\n' | sed 's/ $//' )
+
             # Output frequency, app name, categories, and desktop file path
-            printf "%s|%s|%s|%s\n" "$freq" "$name" "$categories" "$file"
+            printf "%s|%s|%s|%s|%s\n" "$freq" "$name" "$categories" "$comments" "$file"
         fi
     done
 }
@@ -81,10 +82,8 @@ launch_application() {
 # Main script
 selected_app=$(get_applications | sort -t'|' -k1,1nr -k2,2 | while IFS='|' read -r freq name categories file; do
     # Add ANSI escape codes (dimming the frequency)
-    printf "${DIM}%s|${RESET}%s${DIM}|%s|%s${RESET}\n" "$freq" "$name" "$categories" "$file"
+    printf "${DIM}%s|${RESET}%s${DIM}|%s|%s\n${RESET}" "$freq" "$name" "$categories" "$file"
 done | fzf --ansi \
-     --nth=1 \
-     --with-nth=1,2,3 \
      --cycle --bind 'tab:toggle+down' \
      --prompt="Select an application: " \
      --layout=reverse \
