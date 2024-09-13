@@ -114,6 +114,41 @@ enable_nvidia_services() {
     sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
     echo "Note: Add 'nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1' to your kernel parameters if GDM does not show Wayland options."
 }
+# Lorien is a infinite canvas application.
+download_and_setup_lorien() {
+    # Variables
+    REPO="mbrlabs/Lorien"
+    INSTALL_DIR="$HOME/.local/share/Lorien"
+    DESKTOP_FILE="$HOME/.local/share/applications/lorien.desktop"
+    EXECUTABLE="$INSTALL_DIR/Lorien.x86_64"
+
+    # Check if Lorien already exists
+    if [ -f "$EXECUTABLE" ]; then
+        echo "Lorien is already installed at $INSTALL_DIR."
+        return 0
+    fi
+
+    # Fetch latest release download URL
+    LATEST_RELEASE_URL=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.assets[] | select(.name | endswith("Linux.tar.xz")) | .browser_download_url')
+
+    # Create install directory, download, and extract
+    mkdir -p "$INSTALL_DIR" && wget -O "$INSTALL_DIR/Lorien_Linux.tar.xz" "$LATEST_RELEASE_URL"
+    tar -xf "$INSTALL_DIR/Lorien_Linux.tar.xz" -C "$INSTALL_DIR" && chmod +x "$EXECUTABLE"
+
+    # Create .desktop file
+    cat > "$DESKTOP_FILE" <<EOL
+[Desktop Entry]
+Name=Lorien
+Exec=$EXECUTABLE
+Icon=$INSTALL_DIR/icon.png
+Type=Application
+Categories=Graphics;
+EOL
+
+    echo "Lorien has been installed and a desktop entry has been created."
+}
+
+
 
 # Main script execution
 main() {
@@ -129,6 +164,7 @@ main() {
     set_default_file_manager
     enable_wayland_gdm
     enable_nvidia_services
+    download_and_setup_lorien
     echo "Script execution complete."
 }
 
