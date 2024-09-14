@@ -17,10 +17,10 @@ COLOR="\e[1;33m"
 DATADIR="$HOME/.fzflauncherdata"
 mkdir -p "$DATADIR"
 # File to store app launch frequencies
-LAUNCH_LOG="$DATADIR/.fzf_launcher_freq"
+LAUNCH_LOG="$DATADIR/freq"
 
 # Cache directory and file
-CACHE_FILE="$DATADIR/.fzf_launcher_cache"
+CACHE_FILE="$DATADIR/cache"
 
 
 # Function to get launch frequency
