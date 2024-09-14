@@ -112,7 +112,6 @@ selected_app=$(echo "$applications_with_freq" | sort -t $'\x1F' -k1,1nr -k2,2 | 
 done | fzf --ansi \
      -d $'\x1F' \
      --no-multi \
-     --no-exact \
      --algo=v2 \
      --with-nth 2,3,4 \
      --tiebreak=begin,index \
