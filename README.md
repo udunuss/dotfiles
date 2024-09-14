@@ -12,5 +12,6 @@ wget -q -O - https://raw.githubusercontent.com/udunuss/dotfiles/main/pkgs | /bin
 ```
 
 ![image](https://github.com/user-attachments/assets/e607f68e-7f4d-4427-a2d3-a0943277d8c1)
+![2024-09-14-14-59-08](https://github.com/user-attachments/assets/8d4d67e7-57b3-416b-8f35-5450280beedd)
 
 terminal based fzf launcher and power menu
