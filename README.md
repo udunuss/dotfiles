@@ -1,4 +1,5 @@
-for personal sync.
+for personal sync. 
+Warning: It installs keyd, keyd replaces capslock with esc on tap and activating simple vim motions on hold.
 ##### Wallpapers taken from [kirokaze](https://www.deviantart.com/kirokaze) and modified waybar config from [mxkrsv](https://github.com/mxkrsv/dotfiles/tree/master)
 ## Usage
 ### Files
