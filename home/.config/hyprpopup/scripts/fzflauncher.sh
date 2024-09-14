@@ -109,13 +109,13 @@ done)
 
 selected_app=$(echo "$applications_with_freq" | sort -t $'\x1F' -k1,1nr -k2,2 | while IFS=$'\x1F' read -r freq name categories comments file; do
     # Add ANSI escape codes (dimming the frequency), delimiters outside ANSI codes
-    printf "${DIM}%s${RESET}\x1F%s\x1F${COLOR_ONE}%s${RESET}\x1F${COLOR_TWO}%s${RESET}\x1F${DIM}%s${RESET}\n" \
+    printf "${DIM}%s${RESET}\x1F%s\x1F${COLOR_TWO}%s${RESET}\x1F${COLOR_ONE}%s${RESET}\x1F${DIM}%s${RESET}\n" \
     "$freq" "$name" "$categories" "$comments" "$file"
 done | fzf --ansi \
      -d $'\x1F' \
      --no-multi \
      --algo=v2 \
-     --with-nth 2,3,4 \
+     --with-nth 2,4,3 \
      --tiebreak=begin,index \
      --cycle --bind 'tab:toggle+down' \
      --prompt="Select an application: " \
