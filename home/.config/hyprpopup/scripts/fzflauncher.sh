@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 set -euo pipefail
@@ -12,8 +13,13 @@ DIM="\e[38;5;243m"
 COLOR_ONE="\e[38;5;30m"
 COLOR_TWO="\e[38;5;173m"
 COLOR="\e[1;33m"
+
 # File to store app launch frequencies
-LAUNCH_LOG="$HOME/.app-launch-frequency"
+LAUNCH_LOG="$HOME/.fzf_launcher_freq"
+
+# Cache directory and file
+CACHE_FILE="$HOME/.fzf_launcher_cache"
+
 
 # Function to get launch frequency
 get_frequency() {
@@ -61,9 +67,8 @@ get_applications() {
             categories=$(awk -F= '/^Categories=/{print $2}' "$file" | tr -d '\n' | tr ';' ',' | sed 's/,$//' | sed 's/ $//' )
             comments=$(awk -F= '/^Comment=/{print $2}' "$file" | tr -d '\n' | sed 's/ $//' )
 
-
             # Output frequency, app name, categories, and desktop file path
-            printf "%s\x1F%s\x1F%s\x1F%s\x1F%s\n" "$freq" "$name" "$categories" "$comments" "$file"
+            printf "%s\x1F%s\x1F%s\x1F%s\n" "$name" "$categories" "$comments" "$file"
         fi
     done
 }
@@ -85,7 +90,22 @@ launch_application() {
 
 # Main script
 
-selected_app=$(get_applications | sort -t $'\x1F' -k1,1nr -k2,2 | while IFS=$'\x1F' read -r freq name categories comments file; do
+# Read from cache if available, else generate applications and cache them
+if [ -f "$CACHE_FILE" ]; then
+    applications=$(cat "$CACHE_FILE")
+else
+    applications=$(get_applications)
+    echo "$applications" > "$CACHE_FILE"
+fi
+
+# Now, for each application, get the frequency
+applications_with_freq=$(echo "$applications" | while IFS=$'\x1F' read -r name categories comments file; do
+    freq=$(get_frequency "$name")
+    printf "%s\x1F%s\x1F%s\x1F%s\x1F%s\n" "$freq" "$name" "$categories" "$comments" "$file"
+done)
+
+
+selected_app=$(echo "$applications_with_freq" | sort -t $'\x1F' -k1,1nr -k2,2 | while IFS=$'\x1F' read -r freq name categories comments file; do
     # Add ANSI escape codes (dimming the frequency), delimiters outside ANSI codes
     printf "${DIM}%s${RESET}\x1F%s\x1F${COLOR_ONE}%s${RESET}\x1F${COLOR_TWO}%s${RESET}\x1F${DIM}%s${RESET}\n" \
     "$freq" "$name" "$categories" "$comments" "$file"
@@ -105,7 +125,7 @@ done | fzf --ansi \
 
 if [ -n "${selected_app:-}" ]; then
     launch_application "$selected_app"
+    (get_applications > "$CACHE_FILE.tmp" && mv "$CACHE_FILE.tmp" "$CACHE_FILE") &
 else
     echo "No application selected."
 fi
-
