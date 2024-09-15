@@ -52,6 +52,7 @@ get_applications() {
         fi
     done
 
+
     local local_app_dir="$HOME/.local/share/applications"
     if [[ ! " ${app_dirs[*]} " =~ " ${local_app_dir} " ]]; then
         app_dirs+=("$local_app_dir")
@@ -74,7 +75,7 @@ get_applications() {
         fi
     done
 }
-
+(get_applications > "$CACHE_FILE.tmp" && mv "$CACHE_FILE.tmp" "$CACHE_FILE") &
 # Function to launch the selected application
 launch_application() {
     local IFS=$'\x1F'
@@ -126,7 +127,7 @@ done | fzf --ansi \
 
 if [ -n "${selected_app:-}" ]; then
     launch_application "$selected_app"
-    (get_applications > "$CACHE_FILE.tmp" && mv "$CACHE_FILE.tmp" "$CACHE_FILE") &
+    
 else
     echo "No application selected."
 fi
