@@ -47,6 +47,7 @@ install_packages() {
     echo "Installing packages..."
     "$AUR_HELPER" --sudoloop --needed --noconfirm -S \
         figlet mpv jq btop xorg-xkill wl-clipboard bluez bluez-tools blueman keyd git base-devel wget fzf bat dex fish zenity \
+        udisks2 udiskie \
         neovim firefox qbittorrent steam wezterm-git \
         hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl \
         networkmanager network-manager-applet godot
