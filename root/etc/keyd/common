@@ -1,0 +1,43 @@
+capslock = overload(vim,esc)
+
+[vim]
+h = left
+j = down
+k = up
+l = right
+x = delete
+0 = home
+p = macro(C-v)
+g = oneshot(vim_g)
+d = oneshot(vim_d)
+y = macro(C-c left)
+v = toggle(vim_select)
+s = sysrq
+
+
+rightshift = overload(vimshift,rightshift)
+leftshift =  overload(vimshift,rightshift)
+
+[vimshift]
+4 = end
+g = macro(C-end)
+v = macro(home S-end)
+semicolon = oneshot(vim_colon)
+
+[vim_g]
+g = macro(C-home)
+
+[vim_colon]
+w = macro(C-s)
+q = macro(A-f4)
+
+[vim_d]
+d = macro(home S-end C-c delete)
+
+[vim_select:vim]
+h = macro(S-left)
+j = macro(S-down)
+k = macro(S-up)
+l = macro(S-right)
+v = toggle(vim_select)
+
