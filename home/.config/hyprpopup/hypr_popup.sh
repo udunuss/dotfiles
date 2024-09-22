@@ -56,7 +56,7 @@ wezterm --config initial_cols=$2 --config initial_rows=$3 --config font_size=$4 
 TERMINAL_PID=$!
 
 # Wait a bit for the window to appear
-sleep 0.5
+sleep 0.7
 
 # Get the initial focused window
 INITIAL_FOCUS=$(get_window_by_pid "$TERMINAL_PID")
