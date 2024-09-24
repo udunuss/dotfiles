@@ -1,5 +1,5 @@
 for personal sync. 
-###### Warning: It installs keyd, keyd replaces capslock with esc when tap and activating simple vim motions on hold.
+###### Warning: It installs keyd, which activates simple Vim motions when holding CapsLock.
 ##### Wallpapers taken from [kirokaze](https://www.deviantart.com/kirokaze) and modified waybar config from [mxkrsv](https://github.com/mxkrsv/dotfiles/tree/master)
 ## Usage
 ### Files
