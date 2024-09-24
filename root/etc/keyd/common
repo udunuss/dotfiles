@@ -1,4 +1,4 @@
-capslock = overload(vim,esc)
+capslock = overload(vim,capslock)
 
 [vim]
 h = left
