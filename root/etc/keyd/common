@@ -5,6 +5,7 @@ h = left
 j = down
 k = up
 l = right
+o = macro(S-enter)
 x = delete
 0 = home
 p = macro(C-v)
@@ -23,6 +24,7 @@ leftshift =  overload(vimshift,rightshift)
 g = macro(C-end)
 v = macro(home S-end)
 semicolon = oneshot(vim_colon)
+o = macro(home S-enter up)
 
 [vim_g]
 g = macro(C-home)
@@ -40,4 +42,3 @@ j = macro(S-down)
 k = macro(S-up)
 l = macro(S-right)
 v = toggle(vim_select)
-
