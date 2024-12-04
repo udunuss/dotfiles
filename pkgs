@@ -168,7 +168,7 @@ EOL
 
 #Disable gpu compositing for chrome
 chrome_dgc() {
-sudo cat > /usr/share/applications/google-chrome.desktop << ENDOFLINE
+sudo /bin/bash -c "cat > /usr/share/applications/google-chrome.desktop << ENDOFLINE
             [Desktop Entry]
 Version=1.0
 Name=Google Chrome
@@ -200,7 +200,7 @@ Name=New Incognito Window
 Name[tr]=Yeni Gizli pencere
 StartupWMClass=Google-chrome
 Exec=/usr/bin/google-chrome-stable --disable-gpu-compositing --incognito
-ENDOFLINE
+ENDOFLINE"
 }
 
 # Main script execution
