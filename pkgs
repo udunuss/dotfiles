@@ -168,7 +168,7 @@ EOL
 
 #Disable gpu compositing for chrome
 chrome_dgc() {
-cat > /usr/share/applications/google-chrome.desktop << ENDOFLINE
+sudo cat > /usr/share/applications/google-chrome.desktop << ENDOFLINE
             [Desktop Entry]
 Version=1.0
 Name=Google Chrome
