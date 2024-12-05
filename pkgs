@@ -9,8 +9,8 @@ WEZTERM_TERMINFO="/usr/share/terminfo/w/wezterm"
 KGX_BINARY="/usr/bin/kgx"
 WEZTERM_BINARY="/usr/bin/wezterm"
 
-# Function to install paru (AUR helper)
-install_paru() {
+# Function to install AUR helper
+install_aur_helper() {
     if ! command -v "$AUR_HELPER" &> /dev/null; then
         echo "$AUR_HELPER is not installed. Installing $AUR_HELPER..."
         git clone https://aur.archlinux.org/"$AUR_HELPER".git
@@ -205,7 +205,7 @@ ENDOFLINE"
 
 # Main script execution
 main() {
-    install_paru
+    install_aur_helper
     cleanup_wezterm_terminfo
     update_system
     install_packages
