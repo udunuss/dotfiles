@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1 ibt=off
 set -euo pipefail
 
 # Variables
