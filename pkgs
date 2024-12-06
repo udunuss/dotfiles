@@ -11,6 +11,7 @@ WEZTERM_BINARY="/usr/bin/wezterm"
 # Function to install AUR helper
 install_aur_helper() {
     sudo pacman -S git --noconfirm --needed
+    git config --global http.postBuffer 157286400
     if ! command -v "$AUR_HELPER" &> /dev/null; then
         echo "$AUR_HELPER is not installed. Installing $AUR_HELPER..."
         git clone https://aur.archlinux.org/"$AUR_HELPER".git
