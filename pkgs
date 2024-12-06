@@ -1,5 +1,4 @@
 #!/bin/bash
-# nvidia_drm.modeset=1 nvidia_drm.fbdev=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1 ibt=off
 set -euo pipefail
 
 # Variables
@@ -114,7 +113,7 @@ enable_wayland_gdm() {
 enable_nvidia_services() {
     echo "Enabling Nvidia services..."
     sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
-    echo "Note: Add 'nvidia_drm.modeset=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1' to your kernel parameters if GDM does not show Wayland options."
+    echo "Note: Add 'nvidia_drm.modeset=1 nvidia_drm.fbdev=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1' to your kernel parameters if GDM does not show Wayland options."
 }
 # Lorien is a infinite canvas application.
 
@@ -215,7 +214,7 @@ main() {
     configure_wezterm
     configure_nautilus
     set_default_file_manager
-    enable_wayland_gdm
+    #enable_wayland_gdm
     enable_nvidia_services
     download_and_setup_lorien
     chrome_dgc
