@@ -1,6 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+# Prompt for sudo password once at the beginning
+sudo -v
+# Start a background loop to keep updating sudo timestamp so it doesn't expire
+( while true; do sleep 60; sudo -n true; done ) &
+SUDO_LOOP_PID=$!
+trap 'kill $SUDO_LOOP_PID' EXIT
+
+
 # Variables
 AUR_HELPER="paru"
 RUST_INSTALLER_URL="https://sh.rustup.rs"
