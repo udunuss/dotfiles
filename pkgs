@@ -61,7 +61,7 @@ install_packages() {
         figlet mpv jq btop xorg-xkill wl-clipboard bluez bluez-tools blueman keyd base-devel wget fzf bat dex fish zenity xorg-xhost \
         dosfstools mtools \
         udisks2 udiskie \
-        neovim firefox google-chrome qbittorrent steam wezterm-git \
+        neovim firefox google-chrome qbittorrent steam wezterm \
         hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl \
         networkmanager network-manager-applet godot
 }
