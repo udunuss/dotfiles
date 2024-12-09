@@ -147,6 +147,8 @@ require("lazy").setup({
 	--██║ ╚═╝ ██║   ██║       ██║     ███████╗╚██████╔╝╚██████╔╝██║██║ ╚████║███████║
 	--╚═╝     ╚═╝   ╚═╝       ╚═╝     ╚══════╝ ╚═════╝  ╚═════╝ ╚═╝╚═╝  ╚═══╝╚══════╝
 
+	--VimWiki is a personal wiki for Vim -- a number of linked text files that have their own syntax highlighting.
+	{ "vimwiki/vimwiki" },
 	--Desc: suda is a plugin to read or write files with sudo command.
 	{ "lambdalisue/vim-suda" },
 
