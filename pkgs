@@ -50,13 +50,21 @@ cleanup_wezterm_terminfo() {
 # Function to update system packages
 update_system() {
     echo "Updating system packages..."
+
+    set +e
     sudo pacman --noconfirm -Syu
     "$AUR_HELPER" --sudoloop --noconfirm -Syu
+    if [ $? -ne 0 ]; then
+        echo "Warning: Some packages failed to install."
+    fi
+    set -e
 }
 
 # Function to install packages
 install_packages() {
     echo "Installing packages..."
+
+    set +e
     "$AUR_HELPER" --sudoloop --needed --noconfirm -S \
         figlet mpv jq btop xorg-xkill wl-clipboard bluez bluez-tools blueman keyd base-devel wget fzf bat dex fish zenity xorg-xhost \
         dosfstools mtools \
@@ -64,6 +72,10 @@ install_packages() {
         neovim firefox google-chrome qbittorrent steam wezterm \
         hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl \
         networkmanager network-manager-applet godot
+    if [ $? -ne 0 ]; then
+       echo "Warning: Some packages failed to install."
+    fi
+    set -e
 }
 
 # Function to configure services
