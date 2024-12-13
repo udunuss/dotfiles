@@ -47,11 +47,12 @@
 		"tooltip": false
 	},
 
-	"clock#time": {
-		"interval": 10,
-		"format": "{:%H:%M}",
-		"tooltip": false
-	},
+	
+"clock#time": {
+    "interval": 1,
+    "format": "{:%A %H:%M:%S}",
+    "tooltip": false
+},
 
 	"clock#date": {
 		"interval": 20,
