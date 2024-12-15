@@ -9,6 +9,7 @@
 	],
 
 	"modules-right": [
+		"custom/refresh",
 		"custom/arrow1",
 		"pulseaudio",
 		"network",
@@ -147,12 +148,17 @@
 	},
 	"custom/weather": {
 		"format": "{}",
-		"exec": "wget -q -O - 'https://wttr.in/?format=%t%c' | sed 's/+//g; s/C/C /g; s/ //g'",
+"exec": "output=$(wget -q -O - 'https://wttr.in/?format=%t%c'); if echo \"$output\" | grep -Eq '°C'; then echo \"$output\" | sed 's/+//g; s/C/C /g; s/ //g'; else echo 'N/A°C'; fi",
 		"tooltip": true,
 		"on-click":"fontsize=12;weather=$(wget -q -O - https://wttr.in/ );wezterm --config font_size=10 --config initial_rows=45 --config initial_cols=130 start --class floating bash -c \"echo '$weather'; echo -e '\n\nPress any key to close this window.'; read -n 1\"",	
 		"interval": 180,
 	},
-
+"custom/refresh": {
+    "format": "  ",  // Use an icon like "" (refresh) or text
+    "tooltip": false,
+    "on-click": "killall -SIGUSR2 waybar",  // Send a signal to refresh Waybar modules
+    "interval": 0  // No periodic updates needed
+},
 	"tray": {
 		"icon-size": 18
 		//"spacing": 10
