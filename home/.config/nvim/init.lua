@@ -127,6 +127,10 @@ if not vim.loop.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
+local projectfile = vim.fn.getcwd() .. "/project.godot"
+if vim.fn.filereadable(projectfile) == 1 then
+	vim.fn.serverstart("./godothost")
+end
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run
@@ -191,7 +195,7 @@ require("lazy").setup({
 	--
 	--  This is equivalent to:
 	--    require('Comment').setup({})
-
+	{ "habamax/vim-godot", event = "VimEnter" },
 	{ "nvim-lua/popup.nvim" },
 
 	{ "nvim-telescope/telescope-media-files.nvim" },
@@ -529,7 +533,7 @@ require("lazy").setup({
 			--  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
 			local capabilities = vim.lsp.protocol.make_client_capabilities()
 			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-
+			require("lspconfig").gdscript.setup(capabilities)
 			-- Enable the following language servers
 			--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 			--
@@ -540,10 +544,10 @@ require("lazy").setup({
 			--  - settings (table): Override the default settings passed when initializing the server.
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 			local servers = {
-				-- clangd = {},
+				clangd = {},
 				-- gopls = {},
 				-- pyright = {},
-				-- rust_analyzer = {},
+				rust_analyzer = {},
 				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 				--
 				-- Some languages (like typescript) have entire language plugins that can be useful:
@@ -582,6 +586,8 @@ require("lazy").setup({
 			local ensure_installed = vim.tbl_keys(servers or {})
 			vim.list_extend(ensure_installed, {
 				"stylua", -- Used to format Lua code
+				"clangd",
+				"rust-analyzer",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
@@ -815,7 +821,19 @@ require("lazy").setup({
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		opts = {
-			ensure_installed = { "bash", "c", "html", "lua", "luadoc", "markdown", "vim", "vimdoc" },
+			ensure_installed = {
+				"gdscript",
+				"godot_resource",
+				"gdshader",
+				"bash",
+				"c",
+				"html",
+				"lua",
+				"luadoc",
+				"markdown",
+				"vim",
+				"vimdoc",
+			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
 			highlight = {
@@ -853,7 +871,7 @@ require("lazy").setup({
 	--  Here are some example plugins that I've included in the Kickstart repository.
 	--  Uncomment any of the lines below to enable them (you will need to restart nvim).
 	--
-	-- require 'kickstart.plugins.debug',
+	require("kickstart.plugins.debug"),
 	-- require 'kickstart.plugins.indent_line',
 	-- require 'kickstart.plugins.lint',
 	-- require 'kickstart.plugins.autopairs',
