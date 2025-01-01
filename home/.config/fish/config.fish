@@ -29,6 +29,17 @@ alias lla="ls -la"
 alias lt="ls --tree"
 alias clear clear_fastfetch
 alias emacs="emacs -nw"
+alias gitsync='git status; git add .; git commit -m "Sync"; git push origin main'
+alias snvim='sudo -E nvim'
+# Source cargo environment
+# Source .cargo/env
+set -gx CARGO_HOME "$HOME/.cargo"
+set -gx PATH $CARGO_HOME/bin $PATH
+# Set PATH and LD_LIBRARY_PATH
+set -Ux PATH /opt/cuda/bin $PATH
+set -Ux LD_LIBRARY_PATH /opt/cuda/lib64 $LD_LIBRARY_PATH
+# Add pipx bin directory to PATH
+set -gx PATH $PATH /home/user/.local/bin
 # Handy change dir shortcuts
 abbr .. 'cd ..'
 abbr ... 'cd ../..'
