@@ -83,6 +83,12 @@ flathub_install() {
   # Capture the package name passed as an argument
   local package_name="$1"
 
+  # First, check if the package is already installed
+  if flatpak info "$package_name" &>/dev/null; then
+    echo "$package_name is already installed!"
+    return 0
+  fi
+
   echo "Installing $package_name..."
 
   # Run flatpak install in the background, suppressing output
