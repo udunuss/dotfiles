@@ -52,7 +52,6 @@ update_system() {
     echo "Updating system packages..."
 
     set +e
-    sudo pacman --noconfirm -Syu
     "$AUR_HELPER" --sudoloop --noconfirm -Syu
     if [ $? -ne 0 ]; then
         echo "Warning: Some packages failed to install."
