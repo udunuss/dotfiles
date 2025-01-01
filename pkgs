@@ -71,11 +71,15 @@ install_packages() {
         udisks2 udiskie \
         neovim firefox google-chrome qbittorrent steam wezterm \
         hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl \
-        networkmanager network-manager-applet godot
+        networkmanager network-manager-applet godot \
+        flatpak
     if [ $? -ne 0 ]; then
        echo "Warning: Some packages failed to install."
     fi
     set -e
+}
+install_flatpak_packages(){
+flatpak install flathub com.usebottles.bottles
 }
 
 # Function to configure services
@@ -234,6 +238,7 @@ main() {
     cleanup_wezterm_terminfo
     update_system
     install_packages
+    install_flatpak_packages
     configure_services
     install_rust
     install_fonts
