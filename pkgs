@@ -79,7 +79,7 @@ install_packages() {
     set -e
 }
 install_flatpak_packages(){
-flatpak install flathub com.usebottles.bottles
+flatpak install flathub com.usebottles.bottles -y
 }
 
 # Function to configure services
