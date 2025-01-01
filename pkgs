@@ -165,19 +165,19 @@ install_packages() {
 
   if [ "${#installed_pkgs[@]}" -gt 0 ]; then
     echo -n "Installed Packages: "
-    printf '%s ' "${installed_pkgs[@]}"
+    printf '%s ' "\e[2m${installed_pkgs[@]}\e[0m"
     echo
   fi
 
   if [ "${#failed_pkgs[@]}" -gt 0 ]; then
     echo -n "Failed Packages: "
-    printf '%s ' "${failed_pkgs[@]}"
+    printf '%s ' "\e[2m${failed_pkgs[@]}\e[0m"
     echo
   fi
 
   if [ "${#already_pkgs[@]}" -gt 0 ]; then
     echo -n "Already Installed: "
-    printf '%s ' "${already_pkgs[@]}"
+    printf '%s ' "\e[2m${already_pkgs[@]}\e[0m"
     echo
   fi
 }
