@@ -63,81 +63,98 @@ update_system() {
 install_packages() {
   echo "Installing packages..."
 
+  # List all packages in a variable for clarity.
+  # These will be installed one by one.
   local packages="
-    figlet mpv jq btop xorg-xkill wl-clipboard bluez bluez-tools blueman keyd base-devel wget fzf bat dex fish zenity xorg-xhost
-    dosfstools mtools
-    udisks2 udiskie
-    neovim firefox google-chrome qbittorrent steam wezterm
-    hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl
-    networkmanager network-manager-applet godot
+    figlet
+    mpv
+    jq
+    btop
+    xorg-xkill
+    wl-clipboard
+    bluez
+    bluez-tools
+    blueman
+    keyd
+    base-devel
+    wget
+    fzf
+    bat
+    dex
+    fish
+    zenity
+    xorg-xhost
+    dosfstools
+    mtools
+    udisks2
+    udiskie
+    neovim
+    firefox
+    google-chrome
+    qbittorrent
+    steam
+    wezterm
+    hyprland
+    swww
+    hyprlock
+    xdg-desktop-portal-hyprland
+    waybar
+    polkit-gnome
+    grim
+    slurp
+    brightnessctl
+    networkmanager
+    network-manager-applet
+    godot
     flatpak
   "
 
-  # Temporarily disable 'exit on error' to let us handle failures ourselves
+  # Disable exit-on-error so we can handle failures ourselves.
   set +e
 
-  # Create a named pipe for capturing AUR helper output
-  local fifo="/tmp/aur_output.$$"
-  mkfifo "$fifo"
+  # We'll track if any package fails.
+  local overall_exit=0
 
-  # Start the AUR helper in the background, sending all output to the named pipe
-  # Note: We do NOT send it to /dev/null because we want to parse it
-  "$AUR_HELPER" --sudoloop --needed --noconfirm -S $packages \
-      >"$fifo" 2>&1 &
-  local pid=$!
+  # Install each package individually, showing the spinner for each.
+  for pkg in $packages; do
+    echo "Installing $pkg..."
 
-  # We will parse lines in a background process to detect the current package.
-  # Store the package name in a variable that the spinner process can read.
-  local current_pkg=""
-  # Start reading from the FIFO in the background
-  {
-    while IFS= read -r line; do
-      # Optionally echo the raw output to a log if you want to see it:
-      # echo "$line" >> /path/to/logfile
+    "$AUR_HELPER" --sudoloop --needed --noconfirm -S "$pkg" \
+      > /dev/null 2>&1 &
 
-      # Try to detect lines that say something like: 'installing foo (1.2.3-1)'
-      # Adjust this regex to fit your AUR helper’s actual output format
-      if [[ "$line" =~ [Ii]nstalling[[:space:]]([^[:space:]]+) ]]; then
-        current_pkg="${BASH_REMATCH[1]}"
-      fi
+    local pid=$!
+
+    # Simple spinner sequence
+    local spin='-\|/'
+    local i=0
+
+    # While the background process is running, animate a spinner
+    while kill -0 "$pid" 2>/dev/null; do
+      i=$(( (i + 1) % 4 ))
+      printf "\r[%c] Installing $pkg..." "${spin:$i:1}"
+      sleep 0.1
     done
-  } < "$fifo" &
 
-  # Define a simple spinner sequence
-  local spin='-\|/'
-  local i=0
+    # Once the process finishes, get its exit code
+    wait "$pid"
+    local exit_code=$?
 
-  # Spinner loop while the AUR helper is still running
-  while kill -0 "$pid" 2>/dev/null; do
-    i=$(( (i + 1) % 4 ))
-
-    # If we have detected a current package, display it
-    if [ -n "$current_pkg" ]; then
-      printf "\r[%c] Installing: %s" "${spin:$i:1}" "$current_pkg"
+    if [ "$exit_code" -ne 0 ]; then
+      # Clear spinner line and print a warning
+      printf "\rWarning: $pkg failed to install.\n"
+      overall_exit=1
     else
-      # Otherwise just say "Installing packages..."
-      printf "\r[%c] Installing packages..." "${spin:$i:1}"
+      # Clear spinner line and show success
+      printf "\rDone installing $pkg!\n"
     fi
-
-    sleep 0.1
   done
 
-  # The helper process has exited; wait on it to get the exit code
-  wait "$pid"
-  local exit_code=$?
-
-  # Clean up the named pipe
-  rm -f "$fifo"
-
-  # Print final status
-  if [ "$exit_code" -ne 0 ]; then
-    printf "\rWarning: Some packages failed to install.\n"
-  else
-    printf "\rDone installing packages!\n"
-  fi
-
-  # Restore 'exit on error' if that was your default
+  # Re-enable exit-on-error if desired
   set -e
+
+  # You can decide what to do with overall_exit here:
+  # return $overall_exit
+  # or simply handle it after the function call.
 }
 flathub_install() {
   # Capture the package name passed as an argument
