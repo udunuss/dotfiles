@@ -60,11 +60,11 @@ update_system() {
 }
 
 # Function to install packages
+
 install_packages() {
   echo "Installing packages..."
 
-  # List all packages in a variable for clarity.
-  # These will be installed one by one.
+  # List all packages in one place
   local packages="
     figlet
     mpv
@@ -109,16 +109,22 @@ install_packages() {
     flatpak
   "
 
-  # Disable exit-on-error so we can handle failures ourselves.
+  # Arrays to track installation status
+  local installed_pkgs=()
+  local failed_pkgs=()
+  local already_pkgs=()
+
+  # Temporarily disable exit-on-error
   set +e
 
-  # We'll track if any package fails.
-  local overall_exit=0
-
-  # Install each package individually, showing the spinner for each.
   for pkg in $packages; do
-    echo "Installing $pkg..."
+    # Check if this package is already installed
+    if pacman -Qi "$pkg" &>/dev/null; then
+      already_pkgs+=("$pkg")
+      continue
+    fi
 
+    # Not installed, so we try to install it
     "$AUR_HELPER" --sudoloop --needed --noconfirm -S "$pkg" \
       > /dev/null 2>&1 &
 
@@ -128,33 +134,52 @@ install_packages() {
     local spin='-\|/'
     local i=0
 
-    # While the background process is running, animate a spinner
+    # Show a single "Installing <pkg>" line with a spinner
     while kill -0 "$pid" 2>/dev/null; do
       i=$(( (i + 1) % 4 ))
-      printf "\r[%c] Installing $pkg..." "${spin:$i:1}"
+      printf "\r[%c] Installing %s..." "${spin:$i:1}" "$pkg"
       sleep 0.1
     done
 
-    # Once the process finishes, get its exit code
+    # Wait for the command to finish, then capture its exit code
     wait "$pid"
     local exit_code=$?
 
+    # Clear the spinner line
+    printf "\r\033[K"
+
     if [ "$exit_code" -ne 0 ]; then
-      # Clear spinner line and print a warning
-      printf "\rWarning: $pkg failed to install.\n"
-      overall_exit=1
+      failed_pkgs+=("$pkg")
     else
-      # Clear spinner line and show success
-      printf "\rDone installing $pkg!\n"
+      installed_pkgs+=("$pkg")
     fi
   done
 
-  # Re-enable exit-on-error if desired
+  # Re-enable exit-on-error
   set -e
 
-  # You can decide what to do with overall_exit here:
-  # return $overall_exit
-  # or simply handle it after the function call.
+  # Final summary:
+  echo "----------------------------------------"
+  echo "Installation Summary"
+  echo "----------------------------------------"
+
+  if [ "${#installed_pkgs[@]}" -gt 0 ]; then
+    echo -n "Installed Packages: "
+    printf '%s ' "${installed_pkgs[@]}"
+    echo
+  fi
+
+  if [ "${#failed_pkgs[@]}" -gt 0 ]; then
+    echo -n "Failed Packages: "
+    printf '%s ' "${failed_pkgs[@]}"
+    echo
+  fi
+
+  if [ "${#already_pkgs[@]}" -gt 0 ]; then
+    echo -n "Already Installed: "
+    printf '%s ' "${already_pkgs[@]}"
+    echo
+  fi
 }
 flathub_install() {
   # Capture the package name passed as an argument
