@@ -63,7 +63,6 @@ update_system() {
 install_packages() {
   echo "Installing packages..."
 
-  # List all packages in a single string/variable for readability
   local packages="
     figlet mpv jq btop xorg-xkill wl-clipboard bluez bluez-tools blueman keyd base-devel wget fzf bat dex fish zenity xorg-xhost
     dosfstools mtools
@@ -74,41 +73,70 @@ install_packages() {
     flatpak
   "
 
-  # Disable exit-on-error to allow handling inside function
+  # Temporarily disable 'exit on error' to let us handle failures ourselves
   set +e
 
-  # Run the AUR helper command in the background, and silence all output
+  # Create a named pipe for capturing AUR helper output
+  local fifo="/tmp/aur_output.$$"
+  mkfifo "$fifo"
+
+  # Start the AUR helper in the background, sending all output to the named pipe
+  # Note: We do NOT send it to /dev/null because we want to parse it
   "$AUR_HELPER" --sudoloop --needed --noconfirm -S $packages \
-      > /dev/null 2>&1 &
+      >"$fifo" 2>&1 &
   local pid=$!
 
-  # Re-enable exit on error for subsequent commands if you'd like
-  # set -e  # Uncomment if needed, but safer to do after we wait on the process
+  # We will parse lines in a background process to detect the current package.
+  # Store the package name in a variable that the spinner process can read.
+  local current_pkg=""
+  # Start reading from the FIFO in the background
+  {
+    while IFS= read -r line; do
+      # Optionally echo the raw output to a log if you want to see it:
+      # echo "$line" >> /path/to/logfile
+
+      # Try to detect lines that say something like: 'installing foo (1.2.3-1)'
+      # Adjust this regex to fit your AUR helper’s actual output format
+      if [[ "$line" =~ [Ii]nstalling[[:space:]]([^[:space:]]+) ]]; then
+        current_pkg="${BASH_REMATCH[1]}"
+      fi
+    done
+  } < "$fifo" &
 
   # Define a simple spinner sequence
   local spin='-\|/'
   local i=0
 
-  # While the AUR helper is still running, show the spinner
+  # Spinner loop while the AUR helper is still running
   while kill -0 "$pid" 2>/dev/null; do
     i=$(( (i + 1) % 4 ))
-    printf "\r[%c] Installing packages..." "${spin:$i:1}"
+
+    # If we have detected a current package, display it
+    if [ -n "$current_pkg" ]; then
+      printf "\r[%c] Installing: %s" "${spin:$i:1}" "$current_pkg"
+    else
+      # Otherwise just say "Installing packages..."
+      printf "\r[%c] Installing packages..." "${spin:$i:1}"
+    fi
+
     sleep 0.1
   done
 
-  # Wait for the process to actually complete and capture its exit status
+  # The helper process has exited; wait on it to get the exit code
   wait "$pid"
   local exit_code=$?
 
+  # Clean up the named pipe
+  rm -f "$fifo"
+
+  # Print final status
   if [ "$exit_code" -ne 0 ]; then
-    # Clear spinner and show warning
     printf "\rWarning: Some packages failed to install.\n"
   else
-    # Clear spinner and show success
     printf "\rDone installing packages!\n"
   fi
 
-  # Reset exit-on-error if it was originally set
+  # Restore 'exit on error' if that was your default
   set -e
 }
 flathub_install() {
