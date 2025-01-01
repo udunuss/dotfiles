@@ -79,7 +79,7 @@ install_packages() {
     set -e
 }
 
-flatpak_install() {
+flathub_install() {
   # Capture the package name passed as an argument
   local package_name="$1"
 
@@ -106,7 +106,8 @@ flatpak_install() {
 }
 
 install_flatpak_packages(){
-flatpak_install "com.usebottles.bottles"
+flathub_install "com.usebottles.bottles"
+flathub_install "com.github.tchx84.Flatseal"
 }
 
 # Function to configure services
