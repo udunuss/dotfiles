@@ -171,11 +171,58 @@ install_rust() {
 
 # Function to install fonts
 install_fonts() {
-    echo "Installing fonts..."
-    "$AUR_HELPER" --sudoloop --needed --noconfirm -S \
-        noto-fonts-cjk noto-fonts-emoji noto-fonts ttf-freefont ttf-ms-fonts ttf-linux-libertine ttf-dejavu \
-        ttf-inconsolata ttf-ubuntu-font-family nerd-fonts ttf-font-awesome-5 ttf-jetbrains-mono
+  echo "Installing fonts..."
+
+  # List all font packages in a variable for clarity
+  local fonts="
+    noto-fonts-cjk
+    noto-fonts-emoji
+    noto-fonts
+    ttf-freefont
+    ttf-ms-fonts
+    ttf-linux-libertine
+    ttf-dejavu
+    ttf-inconsolata
+    ttf-ubuntu-font-family
+    nerd-fonts
+    ttf-font-awesome-5
+    ttf-jetbrains-mono
+  "
+
+  # Disable exit on error temporarily so we can capture status ourselves
+  set +e
+
+  # Run the install command in the background, suppress all output
+  "$AUR_HELPER" --sudoloop --needed --noconfirm -S $fonts > /dev/null 2>&1 &
+  local pid=$!
+
+  # Define a simple spinner sequence
+  local spin='-\|/'
+  local i=0
+
+  # Loop until the background process completes
+  while kill -0 "$pid" 2>/dev/null; do
+    i=$(( (i + 1) % 4 ))
+    printf "\r[%c] Installing fonts..." "${spin:$i:1}"
+    sleep 0.1
+  done
+
+  # Now that the process is done, wait on it and store its exit code
+  wait "$pid"
+  local exit_code=$?
+
+  if [ "$exit_code" -ne 0 ]; then
+    # Clear spinner and show a warning
+    printf "\rWarning: Some fonts failed to install.\n"
+  else
+    # Clear spinner and show success
+    printf "\rDone installing fonts!\n"
+  fi
+
+  # Re-enable exit-on-error if desired
+  set -e
 }
+
 
 # Function to configure WezTerm as default terminal
 configure_wezterm() {
