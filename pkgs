@@ -62,23 +62,56 @@ update_system() {
 
 # Function to install packages
 install_packages() {
-    echo "Installing packages..."
+  echo "Installing packages..."
 
-    set +e
-    "$AUR_HELPER" --sudoloop --needed --noconfirm -S \
-        figlet mpv jq btop xorg-xkill wl-clipboard bluez bluez-tools blueman keyd base-devel wget fzf bat dex fish zenity xorg-xhost \
-        dosfstools mtools \
-        udisks2 udiskie \
-        neovim firefox google-chrome qbittorrent steam wezterm \
-        hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl \
-        networkmanager network-manager-applet godot \
-        flatpak
-    if [ $? -ne 0 ]; then
-       echo "Warning: Some packages failed to install."
-    fi
-    set -e
+  # List all packages in a single string/variable for readability
+  local packages="
+    figlet mpv jq btop xorg-xkill wl-clipboard bluez bluez-tools blueman keyd base-devel wget fzf bat dex fish zenity xorg-xhost
+    dosfstools mtools
+    udisks2 udiskie
+    neovim firefox google-chrome qbittorrent steam wezterm
+    hyprland swww hyprlock xdg-desktop-portal-hyprland waybar polkit-gnome grim slurp brightnessctl
+    networkmanager network-manager-applet godot
+    flatpak
+  "
+
+  # Disable exit-on-error to allow handling inside function
+  set +e
+
+  # Run the AUR helper command in the background, and silence all output
+  "$AUR_HELPER" --sudoloop --needed --noconfirm -S $packages \
+      > /dev/null 2>&1 &
+  local pid=$!
+
+  # Re-enable exit on error for subsequent commands if you'd like
+  # set -e  # Uncomment if needed, but safer to do after we wait on the process
+
+  # Define a simple spinner sequence
+  local spin='-\|/'
+  local i=0
+
+  # While the AUR helper is still running, show the spinner
+  while kill -0 "$pid" 2>/dev/null; do
+    i=$(( (i + 1) % 4 ))
+    printf "\r[%c] Installing packages..." "${spin:$i:1}"
+    sleep 0.1
+  done
+
+  # Wait for the process to actually complete and capture its exit status
+  wait "$pid"
+  local exit_code=$?
+
+  if [ "$exit_code" -ne 0 ]; then
+    # Clear spinner and show warning
+    printf "\rWarning: Some packages failed to install.\n"
+  else
+    # Clear spinner and show success
+    printf "\rDone installing packages!\n"
+  fi
+
+  # Reset exit-on-error if it was originally set
+  set -e
 }
-
 flathub_install() {
   # Capture the package name passed as an argument
   local package_name="$1"
