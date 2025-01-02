@@ -8,7 +8,6 @@ sudo -v
 SUDO_LOOP_PID=$!
 trap 'kill $SUDO_LOOP_PID' EXIT
 
-
 # Variables
 AUR_HELPER="paru"
 RUST_INSTALLER_URL="https://sh.rustup.rs"
@@ -16,100 +15,115 @@ WEZTERM_TERMINFO="/usr/share/terminfo/w/wezterm"
 KGX_BINARY="/usr/bin/kgx"
 WEZTERM_BINARY="/usr/bin/wezterm"
 
-# Function to install AUR helper
+aur_packages="
+  figlet
+  mpv
+  jq
+  btop
+  xorg-xkill
+  wl-clipboard
+  bluez
+  bluez-tools
+  blueman
+  keyd
+  base-devel
+  wget
+  fzf
+  bat
+  dex
+  fish
+  zenity
+  xorg-xhost
+  dosfstools
+  mtools
+  udisks2
+  udiskie
+  neovim
+  firefox
+  google-chrome
+  qbittorrent
+  steam
+  wezterm
+  hyprland
+  swww
+  hyprlock
+  xdg-desktop-portal-hyprland
+  waybar
+  polkit-gnome
+  grim
+  slurp
+  brightnessctl
+  networkmanager
+  network-manager-applet
+  godot
+  flatpak
+  "
+flathub_packages="
+  com.usebottles.bottles
+  com.github.tchx84.Flatseal
+  "
+fonts="
+  noto-fonts-cjk
+  noto-fonts-emoji
+  noto-fonts
+  ttf-freefont
+  ttf-ms-fonts
+  ttf-linux-libertine
+  ttf-dejavu
+  ttf-inconsolata
+  ttf-ubuntu-font-family
+  nerd-fonts
+  ttf-font-awesome-5
+  ttf-jetbrains-mono
+  "
+
 install_git() {
-sudo pacman -S git --noconfirm --needed
-git config --global http.postBuffer 157286400
+  sudo pacman -S git --noconfirm --needed
+  git config --global http.postBuffer 157286400
 }
+
+# Function to install AUR helper
 install_aur_helper() {
-    
-    if ! command -v "$AUR_HELPER" &> /dev/null; then
-        echo "$AUR_HELPER is not installed. Installing $AUR_HELPER..."
-        git clone https://aur.archlinux.org/"$AUR_HELPER".git
-        cd "$AUR_HELPER" || exit
-        makepkg -si --noconfirm
-        cd ..
-        rm -rf "$AUR_HELPER"
-    else
-        echo "$AUR_HELPER is already installed."
-    fi
+  if ! command -v "$AUR_HELPER" &> /dev/null; then
+      echo "$AUR_HELPER is not installed. Installing $AUR_HELPER..."
+      git clone https://aur.archlinux.org/"$AUR_HELPER".git
+      cd "$AUR_HELPER" || exit
+      makepkg -si --noconfirm
+      cd ..
+      rm -rf "$AUR_HELPER"
+  else
+      echo "$AUR_HELPER is already installed."
+  fi
 }
 
 # Function to clean up WezTerm terminfo if necessary
 cleanup_wezterm_terminfo() {
-    if ! command -v wezterm &>/dev/null; then
-        if [ -d "$WEZTERM_TERMINFO" ]; then
-            echo "WezTerm is not installed. Removing terminfo entry..."
-            sudo rm -rf "$WEZTERM_TERMINFO"
-        fi
-    else
-        echo "WezTerm is already installed."
-    fi
+  if ! command -v wezterm &>/dev/null; then
+      if [ -d "$WEZTERM_TERMINFO" ]; then
+          echo "WezTerm is not installed. Removing terminfo entry..."
+          sudo rm -rf "$WEZTERM_TERMINFO"
+      fi
+  else
+      echo "WezTerm is already installed."
+  fi
 }
 
 # Function to update system packages
 update_system() {
-    echo "Updating system packages..."
+  echo "Updating system packages..."
 
-    set +e
-    "$AUR_HELPER" --sudoloop --noconfirm -Syu
-    if [ $? -ne 0 ]; then
-        echo "Warning: Some packages failed to install."
-    fi
-    set -e
+  set +e
+  "$AUR_HELPER" --sudoloop --noconfirm -Syu
+  if [ $? -ne 0 ]; then
+      echo "Warning: Some packages failed to update."
+  fi
+  set -e
 }
 
-# Function to install packages
-
+# Function to install AUR packages
 install_packages() {
-  echo "Installing packages..."
+  echo "Installing AUR packages..."
 
-  # List all packages in one place
-  local packages="
-    figlet
-    mpv
-    jq
-    btop
-    xorg-xkill
-    wl-clipboard
-    bluez
-    bluez-tools
-    blueman
-    keyd
-    base-devel
-    wget
-    fzf
-    bat
-    dex
-    fish
-    zenity
-    xorg-xhost
-    dosfstools
-    mtools
-    udisks2
-    udiskie
-    neovim
-    firefox
-    google-chrome
-    qbittorrent
-    steam
-    wezterm
-    hyprland
-    swww
-    hyprlock
-    xdg-desktop-portal-hyprland
-    waybar
-    polkit-gnome
-    grim
-    slurp
-    brightnessctl
-    networkmanager
-    network-manager-applet
-    godot
-    flatpak
-  "
-
-  # Arrays to track installation status
   local installed_pkgs=()
   local failed_pkgs=()
   local already_pkgs=()
@@ -117,7 +131,7 @@ install_packages() {
   # Temporarily disable exit-on-error
   set +e
 
-  for pkg in $packages; do
+  for pkg in $aur_packages; do
     # Check if this package is already installed
     if pacman -Qi "$pkg" &>/dev/null; then
       already_pkgs+=("$pkg")
@@ -160,7 +174,7 @@ install_packages() {
 
   # Final summary:
   echo "----------------------------------------"
-  echo "Installation Summary"
+  echo "AUR Installation Summary"
   echo "----------------------------------------"
 
   if [ "${#installed_pkgs[@]}" -gt 0 ]; then
@@ -181,181 +195,235 @@ install_packages() {
     echo
   fi
 }
-flathub_install() {
-  # Capture the package name passed as an argument
-  local package_name="$1"
 
-  # First, check if the package is already installed
-  if flatpak info "$package_name" &>/dev/null; then
-    echo "$package_name is already installed!"
-    return 0
-  fi
+# Function to install Flathub packages with spinner and summary
+install_flathub_packages() {
+  echo "Installing Flathub packages..."
 
-  echo "Installing $package_name..."
+  local installed_pkgs=()
+  local failed_pkgs=()
+  local already_pkgs=()
 
-  # Run flatpak install in the background, suppressing output
-  flatpak install flathub "$package_name" -y > /dev/null 2>&1 &
-  local pid=$!
+  set +e
 
-  # Define a simple spinner sequence
-  local spin='-\|/'
-  local i=0
+  for package_name in $flathub_packages; do
+    # First, check if the package is already installed
+    if flatpak info "$package_name" &>/dev/null; then
+      already_pkgs+=("$package_name")
+      continue
+    fi
 
-  # Loop while the flatpak install process is running
-  while kill -0 "$pid" 2>/dev/null; do
-    # Print spinner animation in place
-    i=$(( (i + 1) % 4 ))
-    printf "\r[%c] Installing $package_name..." "${spin:$i:1}"
-    sleep 0.1
+    # Not installed, so we try to install it
+    flatpak install flathub "$package_name" -y > /dev/null 2>&1 &
+    local pid=$!
+
+    # Define a simple spinner sequence
+    local spin='-\|/'
+    local i=0
+
+    # Loop while the flatpak install process is running
+    while kill -0 "$pid" 2>/dev/null; do
+      i=$(( (i + 1) % 4 ))
+      printf "\r[%c] Installing %s..." "${spin:$i:1}" "$package_name"
+      sleep 0.1
+    done
+
+    # Wait for the command to finish
+    wait "$pid"
+    local exit_code=$?
+
+    # Clear the spinner and either record success or failure
+    printf "\r\033[K"
+    if [ "$exit_code" -ne 0 ]; then
+      failed_pkgs+=("$package_name")
+    else
+      installed_pkgs+=("$package_name")
+    fi
   done
 
-  # Clear the spinner and print completion message
-  printf "\rDone installing $package_name!\n"
+  set -e
+
+  # Final summary:
+  echo "----------------------------------------"
+  echo "Flathub Installation Summary"
+  echo "----------------------------------------"
+
+  if [ "${#installed_pkgs[@]}" -gt 0 ]; then
+    echo -n "Installed Packages: "
+    printf '\e[2m%s\e[0m ' "${installed_pkgs[@]}"
+    echo
+  fi
+
+  if [ "${#failed_pkgs[@]}" -gt 0 ]; then
+    echo -n "Failed Packages: "
+    printf '\e[2m%s\e[0m ' "${failed_pkgs[@]}"
+    echo
+  fi
+
+  if [ "${#already_pkgs[@]}" -gt 0 ]; then
+    echo -n "Already Installed: "
+    printf '\e[2m%s\e[0m ' "${already_pkgs[@]}"
+    echo
+  fi
 }
 
-install_flatpak_packages(){
-flathub_install "com.usebottles.bottles"
-flathub_install "com.github.tchx84.Flatseal"
+# Function to install fonts with spinner and summary
+install_fonts() {
+  echo "Installing fonts..."
+
+  local installed_pkgs=()
+  local failed_pkgs=()
+  local already_pkgs=()
+
+  set +e
+
+  for font_pkg in $fonts; do
+    # Check if font package is already installed
+    if pacman -Qi "$font_pkg" &>/dev/null; then
+      already_pkgs+=("$font_pkg")
+      continue
+    fi
+
+    # Not installed, so we try to install it
+    "$AUR_HELPER" --sudoloop --needed --noconfirm -S "$font_pkg" \
+      > /dev/null 2>&1 &
+
+    local pid=$!
+
+    # Simple spinner sequence
+    local spin='-\|/'
+    local i=0
+
+    # Show a single "Installing <font_pkg>" line with a spinner
+    while kill -0 "$pid" 2>/dev/null; do
+      i=$(( (i + 1) % 4 ))
+      printf "\r[%c] Installing %s..." "${spin:$i:1}" "$font_pkg"
+      sleep 0.1
+    done
+
+    # Wait for the command to finish, then capture its exit code
+    wait "$pid"
+    local exit_code=$?
+
+    # Clear the spinner line
+    printf "\r\033[K"
+
+    if [ "$exit_code" -ne 0 ]; then
+      failed_pkgs+=("$font_pkg")
+    else
+      installed_pkgs+=("$font_pkg")
+    fi
+  done
+
+  set -e
+
+  # Final summary:
+  echo "----------------------------------------"
+  echo "Fonts Installation Summary"
+  echo "----------------------------------------"
+
+  if [ "${#installed_pkgs[@]}" -gt 0 ]; then
+    echo -n "Installed Fonts: "
+    printf '\e[2m%s\e[0m ' "${installed_pkgs[@]}"
+    echo
+  fi
+
+  if [ "${#failed_pkgs[@]}" -gt 0 ]; then
+    echo -n "Failed Fonts: "
+    printf '\e[2m%s\e[0m ' "${failed_pkgs[@]}"
+    echo
+  fi
+
+  if [ "${#already_pkgs[@]}" -gt 0 ]; then
+    echo -n "Already Installed: "
+    printf '\e[2m%s\e[0m ' "${already_pkgs[@]}"
+    echo
+  fi
 }
 
-# Function to configure services
+# Configure services
 configure_services() {
-    echo "Configuring services..."
-    sudo usermod -aG keyd "$(whoami)"
-    sudo systemctl enable --now keyd.service bluetooth.service
+  echo "Configuring services..."
+  sudo usermod -aG keyd "$(whoami)"
+  sudo systemctl enable --now keyd.service bluetooth.service
 }
 
 # Function to install Rust
 install_rust() {
-    if command -v rustc &>/dev/null && command -v cargo &>/dev/null; then
-        echo "Rust is already installed."
-    else
-        echo "Installing Rust..."
-        curl --proto '=https' --tlsv1.2 -sSf "$RUST_INSTALLER_URL" | sh -s -- -y
-        source "$HOME/.cargo/env"
-        echo 'source "$HOME/.cargo/env"' >> "$HOME/.bashrc"
-        echo 'source "$HOME/.cargo/env.fish"' >> "$HOME/.config/fish/config.fish"
-    fi
-}
-
-# Function to install fonts
-install_fonts() {
-  echo "Installing fonts..."
-
-  # List all font packages in a variable for clarity
-  local fonts="
-    noto-fonts-cjk
-    noto-fonts-emoji
-    noto-fonts
-    ttf-freefont
-    ttf-ms-fonts
-    ttf-linux-libertine
-    ttf-dejavu
-    ttf-inconsolata
-    ttf-ubuntu-font-family
-    nerd-fonts
-    ttf-font-awesome-5
-    ttf-jetbrains-mono
-  "
-
-  # Disable exit on error temporarily so we can capture status ourselves
-  set +e
-
-  # Run the install command in the background, suppress all output
-  "$AUR_HELPER" --sudoloop --needed --noconfirm -S $fonts > /dev/null 2>&1 &
-  local pid=$!
-
-  # Define a simple spinner sequence
-  local spin='-\|/'
-  local i=0
-
-  # Loop until the background process completes
-  while kill -0 "$pid" 2>/dev/null; do
-    i=$(( (i + 1) % 4 ))
-    printf "\r[%c] Installing fonts..." "${spin:$i:1}"
-    sleep 0.1
-  done
-
-  # Now that the process is done, wait on it and store its exit code
-  wait "$pid"
-  local exit_code=$?
-
-  if [ "$exit_code" -ne 0 ]; then
-    # Clear spinner and show a warning
-    printf "\rWarning: Some fonts failed to install.\n"
+  if command -v rustc &>/dev/null && command -v cargo &>/dev/null; then
+      echo "Rust is already installed."
   else
-    # Clear spinner and show success
-    printf "\rDone installing fonts!\n"
+      echo "Installing Rust..."
+      curl --proto '=https' --tlsv1.2 -sSf "$RUST_INSTALLER_URL" | sh -s -- -y
+      source "$HOME/.cargo/env"
+      echo 'source "$HOME/.cargo/env"' >> "$HOME/.bashrc"
+      echo 'source "$HOME/.cargo/env.fish"' >> "$HOME/.config/fish/config.fish"
   fi
-
-  # Re-enable exit-on-error if desired
-  set -e
 }
-
 
 # Function to configure WezTerm as default terminal
 configure_wezterm() {
-    echo "Configuring WezTerm as the default terminal for KGX..."
-    if [ -f "$KGX_BINARY" ]; then
-        sudo rm -f "$KGX_BINARY"
-    fi
-    sudo ln -sf "$WEZTERM_BINARY" "$KGX_BINARY"
+  echo "Configuring WezTerm as the default terminal for KGX..."
+  if [ -f "$KGX_BINARY" ]; then
+      sudo rm -f "$KGX_BINARY"
+  fi
+  sudo ln -sf "$WEZTERM_BINARY" "$KGX_BINARY"
 }
 
 # Function to configure Nautilus to open WezTerm
 configure_nautilus() {
-    echo "Configuring Nautilus to open WezTerm..."
-    "$AUR_HELPER" --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
-    gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
+  echo "Configuring Nautilus to open WezTerm..."
+  "$AUR_HELPER" --sudoloop --noconfirm --needed -S nautilus-open-any-terminal
+  gsettings set com.github.stunkymonkey.nautilus-open-any-terminal terminal wezterm
 }
 
 # Function to set default file manager
 set_default_file_manager() {
-    echo "Setting Nautilus as the default file manager..."
-    xdg-mime default org.gnome.Nautilus.desktop inode/directory
+  echo "Setting Nautilus as the default file manager..."
+  xdg-mime default org.gnome.Nautilus.desktop inode/directory
 }
 
 # Function to enable Wayland in GDM
 enable_wayland_gdm() {
-    echo "Enabling Wayland in GDM..."
-    sudo sed -i 's/#WaylandEnable=false/WaylandEnable=true/g' /etc/gdm/custom.conf
+  echo "Enabling Wayland in GDM..."
+  sudo sed -i 's/#WaylandEnable=false/WaylandEnable=true/g' /etc/gdm/custom.conf
 }
 
 # Function to enable Nvidia services
 enable_nvidia_services() {
-    echo "Enabling Nvidia services..."
-    sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
-    echo "Note: Add 'nvidia_drm.modeset=1 nvidia_drm.fbdev=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1' to your kernel parameters if GDM does not show Wayland options."
+  echo "Enabling Nvidia services..."
+  sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
+  echo "Note: Add 'nvidia_drm.modeset=1 nvidia_drm.fbdev=1 nvidia.NVreg_PreserveVideoMemoryAllocations=1' to your kernel parameters if GDM does not show Wayland options."
 }
-# Lorien is a infinite canvas application.
 
+# Lorien is an infinite canvas application.
 download_and_setup_lorien() {
-    # Variables
-    REPO="mbrlabs/Lorien"
-    INSTALL_DIR="$HOME/.local/share/Lorien"
-    DESKTOP_FILE="$HOME/.local/share/applications/lorien.desktop"
-    UNINSTALLER="$HOME/.local/share/applications/lorien-uninstaller.desktop"
-    EXECUTABLE="$INSTALL_DIR/Lorien.x86_64"
+  # Variables
+  REPO="mbrlabs/Lorien"
+  INSTALL_DIR="$HOME/.local/share/Lorien"
+  DESKTOP_FILE="$HOME/.local/share/applications/lorien.desktop"
+  UNINSTALLER="$HOME/.local/share/applications/lorien-uninstaller.desktop"
+  EXECUTABLE="$INSTALL_DIR/Lorien.x86_64"
 
-    # Check if Lorien already exists
-    if [ -f "$EXECUTABLE" ]; then
-        echo "Lorien is already installed at $INSTALL_DIR."
-        return 0
-    fi
+  # Check if Lorien already exists
+  if [ -f "$EXECUTABLE" ]; then
+      echo "Lorien is already installed at $INSTALL_DIR."
+      return 0
+  fi
 
-    # Fetch latest release download URL
-    LATEST_RELEASE_URL=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.assets[] | select(.name | endswith("Linux.tar.xz")) | .browser_download_url')
+  # Fetch latest release download URL
+  LATEST_RELEASE_URL=$(curl -s "https://api.github.com/repos/$REPO/releases/latest" | jq -r '.assets[] | select(.name | endswith("Linux.tar.xz")) | .browser_download_url')
 
-    # Create install directory, download, and extract
-    mkdir -p "$INSTALL_DIR"
-    wget -O "$INSTALL_DIR/Lorien_Linux.tar.xz" "$LATEST_RELEASE_URL"
-    tar -xf "$INSTALL_DIR/Lorien_Linux.tar.xz" -C "$INSTALL_DIR" --strip-components=1
+  # Create install directory, download, and extract
+  mkdir -p "$INSTALL_DIR"
+  wget -O "$INSTALL_DIR/Lorien_Linux.tar.xz" "$LATEST_RELEASE_URL"
+  tar -xf "$INSTALL_DIR/Lorien_Linux.tar.xz" -C "$INSTALL_DIR" --strip-components=1
 
-    # Make the executable runnable
-    chmod +x "$EXECUTABLE"
+  # Make the executable runnable
+  chmod +x "$EXECUTABLE"
 
-    # Create .desktop file
-    cat > "$DESKTOP_FILE" <<EOL
+  # Create .desktop file
+  cat > "$DESKTOP_FILE" <<EOL
 [Desktop Entry]
 Name=Lorien
 Exec=$EXECUTABLE
@@ -363,7 +431,8 @@ Icon=$INSTALL_DIR/icon.png
 Type=Application
 Categories=Drawing;Canvas;Graphics;
 EOL
-cat > "$UNINSTALLER" <<EOL
+
+  cat > "$UNINSTALLER" <<EOL
 [Desktop Entry]
 Name=Lorien Uninstaller
 Comment=Uninstall Lorien Application
@@ -372,14 +441,14 @@ Icon=application-x-executable
 Terminal=false
 Type=Application
 Categories=Utility;
-
 EOL
-    echo "Lorien has been installed and a desktop entry has been created."
+
+  echo "Lorien has been installed and a desktop entry has been created."
 }
 
-#Disable gpu compositing for chrome
+# Disable gpu compositing for chrome (optional)
 chrome_dgc() {
-sudo /bin/bash -c "cat > /usr/share/applications/google-chrome.desktop << ENDOFLINE
+  sudo /bin/bash -c "cat > /usr/share/applications/google-chrome.desktop << ENDOFLINE
 [Desktop Entry]
 Version=1.0
 Name=Google Chrome
@@ -416,23 +485,24 @@ ENDOFLINE"
 
 # Main script execution
 main() {
-    install_git
-    install_aur_helper
-    cleanup_wezterm_terminfo
-    update_system
-    install_packages
-    install_flatpak_packages
-    configure_services
-    install_rust
-    install_fonts
-    configure_wezterm
-    configure_nautilus
-    set_default_file_manager
-    enable_wayland_gdm
-    enable_nvidia_services
-    download_and_setup_lorien
-    #chrome_dgc
-    echo "Script execution complete."
+  install_git
+  install_aur_helper
+  cleanup_wezterm_terminfo
+  update_system
+  install_packages
+  install_flathub_packages
+  configure_services
+  install_rust
+  install_fonts
+  configure_wezterm
+  configure_nautilus
+  set_default_file_manager
+  enable_wayland_gdm
+  enable_nvidia_services
+  download_and_setup_lorien
+  # chrome_dgc
+  echo "Script execution complete."
 }
 
 main "$@"
+
