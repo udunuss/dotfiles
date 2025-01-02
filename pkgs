@@ -57,6 +57,7 @@ aur_packages="
   network-manager-applet
   godot
   flatpak
+  yazi
   "
 flathub_packages="
   com.usebottles.bottles
