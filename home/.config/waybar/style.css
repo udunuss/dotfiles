@@ -82,6 +82,7 @@
 #idle_inhibitor,
 #disk,
 #user,
+#custom-blueman,
 #mpris {
 	padding-left: 8pt;
 	padding-right: 8pt;
@@ -198,7 +199,10 @@
 	background: @date;
 	color: @white;
 }
-
+#custom-blueman {
+	background: @blue;
+	color: @white;
+}
 #custom-power,
 #clock.time {
 	background: @time;

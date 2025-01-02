@@ -18,6 +18,7 @@
 		"custom/weather",
 		"battery",
 		"hyprland/language",
+		"custom/blueman",
 		"tray",
 		"clock#date",
 		"clock#time",
@@ -146,6 +147,12 @@
 		],
 		"tooltip": false
 	},
+  "custom/blueman": {
+    "exec": "echo ''",         // what icon/text to display
+    "interval": 3600,          // or any large interval so it won't keep refreshing
+    "tooltip": false,
+    "on-click": "~/.config/hypr/scripts/launch-blueman.sh"
+  },
 	"custom/weather": {
 		"format": "{}",
 "exec": "output=$(wget -q -O - 'https://wttr.in/?format=%t%c'); if echo \"$output\" | grep -Eq '°C'; then echo \"$output\" | sed 's/+//g; s/C/C /g; s/ //g'; else echo 'N/A°C'; fi",
