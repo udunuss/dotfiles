@@ -1,4 +1,5 @@
 set -g fish_greeting
+fish_vi_key_bindings
 set RED (set_color -o red)
 set ORANGE (set_color -o yellow)
 set BLUE (set_color -o blue)
