@@ -17,6 +17,19 @@ vim.opt.number = true
 --  Experiment for yourself to see if you like it!
 vim.opt.relativenumber = true
 
+-- When entering Insert mode, turn OFF relative numbers
+vim.api.nvim_create_autocmd("InsertEnter", {
+	callback = function()
+		vim.opt.relativenumber = false
+	end,
+})
+
+-- When leaving Insert mode (going back to Normal/Visual/etc.), turn ON relative numbers
+vim.api.nvim_create_autocmd("InsertLeave", {
+	callback = function()
+		vim.opt.relativenumber = true
+	end,
+})
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = "a"
 
