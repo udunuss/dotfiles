@@ -1,0 +1,117 @@
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Configuration variables
+USERNAME="udunuss"
+BRANCH="main"
+REPO="dotfiles"
+declare -A FROM_TO=( ["root"]="" ["home"]="$HOME" )
+
+# Temporary directory for cloning the repository
+TEMP_DIR="$(mktemp -d)"
+
+# GitHub Personal Access Token (PAT)
+GITHUB_PAT="${GITHUB_PAT:-}"
+
+# Debug flag (set to true to enable debug output)
+DEBUG="${DEBUG:-false}"
+
+# Enable debug mode if DEBUG is true
+if [ "$DEBUG" = true ]; then
+    set -x
+fi
+
+# Function to clean up temporary directory
+cleanup() {
+    rm -rf "$TEMP_DIR"
+}
+trap cleanup EXIT
+
+# Function to clone repository
+clone_repository() {
+    local clone_url
+    if [ -n "$GITHUB_PAT" ]; then
+        clone_url="https://${GITHUB_PAT}@github.com/${USERNAME}/${REPO}.git"
+    else
+        clone_url="https://github.com/${USERNAME}/${REPO}.git"
+    fi
+    git clone --depth 1 --branch "$BRANCH" "$clone_url" "$TEMP_DIR"
+}
+
+# Global array to hold run.sh scripts
+declare -a RUN_SCRIPTS=()
+
+# Function to update dotfiles
+
+update_dotfiles() {
+    for from in "${!FROM_TO[@]}"; do
+        local to="${FROM_TO[$from]}"
+        local src_dir="${TEMP_DIR}/${from}"
+        if [ ! -d "$src_dir" ]; then
+            echo "Error: Source directory $from not found in the repository" >&2
+            continue
+        fi
+
+        # Use process substitution to avoid subshell issues:
+        while IFS= read -r -d '' src_file; do
+            local rel_path="${src_file#$src_dir/}"
+            local dest_file="${to}/${rel_path}"
+            local dest_dir
+            dest_dir="$(dirname "$dest_file")"
+
+            # Mark as executable if .sh
+            if [[ $src_file == *.sh ]]; then
+                chmod +x "$src_file"
+                echo "Executable permission granted for $src_file"
+            fi
+
+            # Create destination dir if needed
+            if [ ! -d "$dest_dir" ]; then
+                mkdir -p "$dest_dir" || sudo mkdir -p "$dest_dir"
+            fi
+
+            # Copy if missing or different
+            if [ ! -f "$dest_file" ] || ! cmp -s "$src_file" "$dest_file"; then
+                cp "$src_file" "$dest_file" || sudo cp "$src_file" "$dest_file"
+                echo "Updated: $dest_file"
+            else
+                echo "No update needed for $dest_file"
+            fi
+
+            # Collect the destination run.sh file
+            if [[ "$(basename "$src_file")" == "run.sh" ]]; then
+                RUN_SCRIPTS+=("$dest_file")
+            fi
+        done < <(find "$src_dir" -type f -print0)
+    done
+}
+
+echo "Starting dotfiles update script..."
+sudo pacman -S git --noconfirm --needed
+
+if [ -n "$GITHUB_PAT" ]; then
+    echo "Using GitHub Personal Access Token for authentication."
+else
+    echo "No GitHub Personal Access Token provided. Cloning may be subject to rate limiting."
+fi
+
+[ "$DEBUG" = true ] && echo "Debug mode is enabled."
+
+clone_repository
+update_dotfiles
+
+echo "run.sh scripts collected: ${RUN_SCRIPTS[@]}"
+
+# After updating all dotfiles, run the run.sh scripts we added to RUN_SCRIPTS
+for script in "${RUN_SCRIPTS[@]}"; do
+    if [ -x "$script" ]; then
+        echo "Running $script"
+        "$script"
+    else
+        echo "Skipping $script because it is not executable."
+    fi
+done
+
+echo "Dotfiles update complete."
+
