@@ -79,7 +79,7 @@ update_dotfiles() {
             fi
 
             # Collect the destination run.sh file
-            if [[ "$(basename "$src_file")" == "run.sh" ]]; then
+            if [[ "$(basename "$src_file")" == "run_while_installing_dotfiles.sh" ]]; then
                 RUN_SCRIPTS+=("$dest_file")
             fi
         done < <(find "$src_dir" -type f -print0)
