@@ -67,6 +67,7 @@ aur_packages="
   nwg-look
   papirus-icon-theme
   breeze
+  breeze-gtk
   qimgv
   "
 flathub_packages="
