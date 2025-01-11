@@ -5,7 +5,7 @@
 	<name>Open Terminal Here</name>
 	<submenu></submenu>
 	<unique-id>1736581462483697-1</unique-id>
-	<command>exo-open --working-directory %f --launch TerminalEmulator</command>
+	<command>/bin/bash -c &quot;$TERM start --cwd %f&quot;</command>
 	<description>Example for a custom action</description>
 	<range></range>
 	<patterns>*</patterns>
