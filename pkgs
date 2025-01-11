@@ -61,6 +61,7 @@ aur_packages="
   thunar
   nwg-look
   breeze
+  qimgv
   "
 flathub_packages="
   com.usebottles.bottles
