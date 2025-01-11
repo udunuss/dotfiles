@@ -28,4 +28,20 @@
 	<text-files/>
 	<video-files/>
 </action>
+<action>
+	<icon>preferences-system-network-server-ftp</icon>
+	<name>Ftp Connection</name>
+	<submenu></submenu>
+	<unique-id>1736605578935111-1</unique-id>
+	<command>gigolo</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
 </actions>
