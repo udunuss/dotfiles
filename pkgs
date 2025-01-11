@@ -60,6 +60,7 @@ aur_packages="
   yazi
   thunar
   nwg-look
+  breeze
   "
 flathub_packages="
   com.usebottles.bottles
