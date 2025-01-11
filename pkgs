@@ -58,6 +58,8 @@ aur_packages="
   godot
   flatpak
   yazi
+  thunar
+  nwg-look
   "
 flathub_packages="
   com.usebottles.bottles
