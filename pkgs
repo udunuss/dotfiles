@@ -58,7 +58,9 @@ aur_packages="
   godot
   flatpak
   yazi
+  xarchiver
   thunar
+  thunar-archive-plugin
   tumbler
   baobab
   gigolo
