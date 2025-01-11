@@ -12,4 +12,20 @@
 	<startup-notify/>
 	<directories/>
 </action>
+<action>
+	<icon>office-chart-pie</icon>
+	<name>Disk Usage</name>
+	<submenu></submenu>
+	<unique-id>1736601853589229-1</unique-id>
+	<command>baobab %d</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
 </actions>
