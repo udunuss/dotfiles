@@ -66,6 +66,7 @@ aur_packages="
   gigolo
   nwg-look
   papirus-icon-theme
+  qt6ct
   breeze
   breeze-gtk
   bibata-cursor-theme-bin
