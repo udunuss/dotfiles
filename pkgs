@@ -49,7 +49,7 @@ aur_packages="
   hyprlock
   xdg-desktop-portal-hyprland
   waybar
-  polkit-gnome
+  xfce-polkit
   grim
   slurp
   brightnessctl
