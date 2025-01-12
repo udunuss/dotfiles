@@ -44,6 +44,7 @@ aur_packages="
   qbittorrent
   steam
   wezterm
+  lsd
   hyprland
   swww
   hyprlock
