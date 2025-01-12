@@ -68,6 +68,7 @@ aur_packages="
   papirus-icon-theme
   breeze
   breeze-gtk
+  bibata-cursor-theme-bin
   qimgv
   "
 flathub_packages="
