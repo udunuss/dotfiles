@@ -78,7 +78,6 @@ aur_packages="
   android-sdk-build-tools
   android-sdk-platform-tools
   android-udev
-  
   "
 flathub_packages="
   com.usebottles.bottles
