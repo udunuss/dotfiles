@@ -73,6 +73,12 @@ aur_packages="
   breeze-gtk
   bibata-cursor-theme-bin
   qimgv
+  jdk
+  android-sdk
+  android-sdk-build-tools
+  android-sdk-platform-tools
+  android-udev
+  
   "
 flathub_packages="
   com.usebottles.bottles
