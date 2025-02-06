@@ -41,7 +41,7 @@ aur_packages="
   neovim
   firefox
   google-chrome
-  qbittorrent
+  deluge-gtk
   steam
   wezterm
   lsd
