@@ -21,7 +21,7 @@
     "detect_urls": true,
     "edit_trackers_dialog_height": null,
     "edit_trackers_dialog_width": null,
-    "enable_appindicator": false,
+    "enable_appindicator": true,
     "enable_system_tray": true,
     "enabled_plugins": [],
     "focus_add_dialog": true,
@@ -49,8 +49,8 @@
         56494,
         0
     ],
-    "pref_dialog_height": 500,
-    "pref_dialog_width": 450,
+    "pref_dialog_height": 709,
+    "pref_dialog_width": 555,
     "show_connection_manager_on_start": true,
     "show_new_releases": true,
     "show_piecesbar": false,
@@ -84,7 +84,7 @@
     ],
     "window_height": 1362,
     "window_maximized": true,
-    "window_width": 825,
+    "window_width": 950,
     "window_x_pos": 0,
     "window_y_pos": 0
 }
