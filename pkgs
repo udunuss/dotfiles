@@ -43,6 +43,8 @@ aur_packages="
   google-chrome
   deluge-gtk
   steam
+  lib32-nvidia-utils
+  lib32-vulkan-icd-loader
   wezterm
   lsd
   hyprland
