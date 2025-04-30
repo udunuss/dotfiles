@@ -88,7 +88,7 @@
 			"warning": 70,
 			"critical": 90
 		},
-		"on-click": "wezterm --config initial_rows=40 --config initial_cols=80 --config 'window_close_confirmation=\"NeverPrompt\"' start --class floating -e bash -c \"btop\"",
+		"on-click": "missioncenter",
 		"tooltip": false
 	},
 
