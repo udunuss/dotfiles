@@ -49,6 +49,7 @@ aur_packages="
   wezterm
   lsd
   hyprland
+  swaync
   swww
   hyprlock
   xdg-desktop-portal-hyprland
