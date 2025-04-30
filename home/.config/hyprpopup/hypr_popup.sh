@@ -52,6 +52,7 @@ trap cleanup EXIT INT TERM
 # Launch the power menu
 wezterm --config initial_cols=$2 --config initial_rows=$3 --config font_size=$4 start --class floating "$1" &
 
+#env WAYLAND_DISPLAY= alacritty -o window.dimensions.columns=$2 -o window.dimensions.lines=$3 -o font.size=$4 --class floating -e "$1" &
 # Get the PID of the launched wezterm process
 TERMINAL_PID=$!
 
