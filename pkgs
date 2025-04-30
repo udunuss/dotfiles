@@ -20,6 +20,7 @@ aur_packages="
   mpv
   jq
   btop
+  mission-center
   xorg-xkill
   wl-clipboard
   bluez
