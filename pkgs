@@ -43,6 +43,7 @@ aur_packages="
   firefox
   google-chrome
   deluge-gtk
+  qbittorrent
   steam
   lib32-nvidia-utils
   lib32-vulkan-icd-loader
