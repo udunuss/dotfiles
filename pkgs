@@ -97,7 +97,9 @@ fonts="
   ttf-dejavu
   ttf-inconsolata
   ttf-ubuntu-font-family
-  nerd-fonts
+  #nerd-fonts
+  ttf-meslo-nerd
+  ttf-tibetan-machine
   ttf-font-awesome-5
   ttf-jetbrains-mono
   "
