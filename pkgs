@@ -407,7 +407,8 @@ configure_nautilus() {
 # Function to set default file manager
 set_default_file_manager() {
   echo "Setting Nautilus as the default file manager..."
-  xdg-mime default org.gnome.Nautilus.desktop inode/directory
+  #xdg-mime default org.gnome.Nautilus.desktop inode/directory
+  xdg-mime default Thunar.desktop inode/directory
 }
 
 # Function to enable Wayland in GDM
