@@ -59,10 +59,10 @@ update_dotfiles() {
             local dest_dir
             dest_dir="$(dirname "$dest_file")"
 
-            # Mark as executable if .sh
-            if [[ $src_file == *.sh ]]; then
+            # Mark as executable if .sh or .py
+            if [[ $src_file == *.sh || $src_file == *.py ]]; then
                 chmod +x "$src_file"
-                echo "Executable permission granted for $src_file"
+            echo "Executable permission granted for $src_file"
             fi
 
             # Create destination dir if needed
