@@ -9,7 +9,7 @@ SUDO_LOOP_PID=$!
 trap 'kill $SUDO_LOOP_PID' EXIT
 
 # Variables
-AUR_HELPER="paru"
+AUR_HELPER="yay"
 RUST_INSTALLER_URL="https://sh.rustup.rs"
 WEZTERM_TERMINFO="/usr/share/terminfo/w/wezterm"
 KGX_BINARY="/usr/bin/kgx"
