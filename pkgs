@@ -523,7 +523,7 @@ main() {
   install_rust
   install_fonts
   #configure_wezterm
-  #configure_nautilus
+  configure_nautilus
   #set_default_file_manager
   #enable_wayland_gdm
   enable_nvidia_services
